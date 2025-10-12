@@ -1,0 +1,5 @@
+package sevices
+
+func HelloController() {
+
+}
