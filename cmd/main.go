@@ -8,6 +8,9 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+
+	postgres "github.com/ryutaKimu/kakebo/internal/infra/postgre"
+	"github.com/ryutaKimu/kakebo/internal/router"
 )
 
 func main() {
@@ -18,8 +21,13 @@ func main() {
 		port = "9090"
 	}
 
+	pg := postgres.NewPostgres()
+
+	router := router.NewRouter(pg.DB)
+
 	srv := &http.Server{
-		Addr: ":" + port,
+		Addr:    ":" + port,
+		Handler: router,
 	}
 
 	go func() {
