@@ -3,10 +3,11 @@ package controller
 import (
 	"encoding/json"
 	"errors"
+	"log"
 	"net/http"
-	"unicode/utf8"
 
 	"github.com/ryutaKimu/kakebo/internal/controller/services"
+	"github.com/ryutaKimu/kakebo/internal/request"
 )
 
 type UserController struct {
@@ -18,32 +19,14 @@ func NewUserController(s services.UserService) *UserController {
 }
 
 func (c *UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
-	const passwordLengthError = "パスワードは8文字以上である必要があります"
-	const nameRequiredError = "名前は必須です"
-	const emailRequiredError = "メールアドレスは必須です"
-	var input struct {
-		Name     string `json:"name"`
-		Email    string `json:"email"`
-		Password string `json:"password"`
-	}
+	var input request.CreateUserRequest
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if input.Name == "" {
-		http.Error(w, nameRequiredError, http.StatusBadRequest)
-		return
-	}
-
-	if input.Email == "" {
-		http.Error(w, emailRequiredError, http.StatusBadRequest)
-		return
-	}
-
-	if utf8.RuneCountInString(input.Password) < 8 {
-		err := errors.New(passwordLengthError)
+	if err := input.Validate(); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -54,6 +37,7 @@ func (c *UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusConflict)
 			return
 		}
+		log.Printf("failed to create user: %v", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}

@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"log"
 
 	"github.com/ryutaKimu/kakebo/internal/controller/services"
 	postgres "github.com/ryutaKimu/kakebo/internal/infra/postgre"
@@ -24,7 +23,6 @@ func NewUserService(pg *postgres.Postgres, userRepository repository.UserReposit
 }
 
 func (s *UserServiceImpl) CreateUser(ctx context.Context, name string, email string, password string) error {
-	log.Println("CreateUser start")
 	return s.pg.Transaction(ctx, func(txCtx context.Context) error {
 		exist, err := s.userRepository.CheckUserExists(txCtx, email)
 		if err != nil {
@@ -42,7 +40,6 @@ func (s *UserServiceImpl) CreateUser(ctx context.Context, name string, email str
 			Email:    email,
 			Password: string(hashedPassword),
 		}
-		log.Println("CreateUser end")
 		return s.userRepository.CreateUser(txCtx, user)
 	})
 }
