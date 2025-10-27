@@ -47,7 +47,11 @@ func (c *UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	err = c.service.CreateUser(r.Context(), input.Name, input.Email, input.Password)
 	if err != nil {
-		http.Error(w, "Internal Server Error ", http.StatusInternalServerError)
+		if errors.Is(err, services.ErrUserAlreadyExists) {
+			http.Error(w, err.Error(), http.StatusConflict)
+			return
+		}
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 

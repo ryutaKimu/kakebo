@@ -12,6 +12,11 @@ import (
 
 var _ repository.UserRepository = (*UserRepository)(nil)
 
+type dbExecutor interface {
+	ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error)
+	QueryRowContext(ctx context.Context, query string, args ...interface{}) *sql.Row
+}
+
 type UserRepository struct {
 	db   *sql.DB
 	goqu goqu.DialectWrapper
@@ -39,9 +44,6 @@ func (r *UserRepository) CheckUserExists(ctx context.Context, email string) (boo
 	var count int
 	err = row.Scan(&count)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return false, nil
-		}
 		return false, err
 	}
 	return count > 0, nil
@@ -69,10 +71,7 @@ func (r *UserRepository) CreateUser(ctx context.Context, user *model.User) error
 	return nil
 }
 
-func getDBExecutor(ctx context.Context, db *sql.DB) interface {
-	ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error)
-	QueryRowContext(ctx context.Context, query string, args ...interface{}) *sql.Row
-} {
+func getDBExecutor(ctx context.Context, db *sql.DB) dbExecutor {
 	if tx, ok := ctx.Value(postgres.TxContextKey).(*sql.Tx); ok && tx != nil {
 		return tx
 	}

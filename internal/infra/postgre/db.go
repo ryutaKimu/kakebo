@@ -73,3 +73,7 @@ func (p *Postgres) Transaction(ctx context.Context, fn func(ctx context.Context)
 
 	return tx.Commit()
 }
+
+func (p *Postgres) Close() error {
+	return p.DB.Close()
+}

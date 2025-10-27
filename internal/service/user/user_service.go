@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"errors"
 	"log"
 
 	"github.com/ryutaKimu/kakebo/internal/controller/services"
@@ -32,7 +31,7 @@ func (s *UserServiceImpl) CreateUser(ctx context.Context, name string, email str
 			return err
 		}
 		if exist {
-			return errors.New("このメールアドレスはすでに存在しています")
+			return services.ErrUserAlreadyExists
 		}
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 		if err != nil {
