@@ -67,6 +67,7 @@ func (p *Postgres) Transaction(ctx context.Context, fn func(ctx context.Context)
 	if err := fn(ctx); err != nil {
 		if e := tx.Rollback(); e != nil {
 			log.Printf("transaction rollback failed: %v", e)
+			return err
 		}
 		return err
 	}

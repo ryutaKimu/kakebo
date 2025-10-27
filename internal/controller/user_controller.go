@@ -18,6 +18,9 @@ func NewUserController(s services.UserService) *UserController {
 }
 
 func (c *UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
+	const passwordLengthError = "パスワードは8文字以上である必要があります"
+	const nameRequiredError = "名前は必須です"
+	const emailRequiredError = "メールアドレスは必須です"
 	var input struct {
 		Name     string `json:"name"`
 		Email    string `json:"email"`
@@ -30,17 +33,17 @@ func (c *UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if input.Name == "" {
-		http.Error(w, "名前は必須です", http.StatusBadRequest)
+		http.Error(w, nameRequiredError, http.StatusBadRequest)
 		return
 	}
 
 	if input.Email == "" {
-		http.Error(w, "メールアドレスは必須です", http.StatusBadRequest)
+		http.Error(w, emailRequiredError, http.StatusBadRequest)
 		return
 	}
 
 	if utf8.RuneCountInString(input.Password) < 8 {
-		err := errors.New("パスワードは8文字以上である必要があります")
+		err := errors.New(passwordLengthError)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
