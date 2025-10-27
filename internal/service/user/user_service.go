@@ -3,43 +3,47 @@ package service
 import (
 	"context"
 	"errors"
+	"log"
 
 	"github.com/ryutaKimu/kakebo/internal/controller/services"
+	postgres "github.com/ryutaKimu/kakebo/internal/infra/postgre"
 	"github.com/ryutaKimu/kakebo/internal/model"
 	repository "github.com/ryutaKimu/kakebo/internal/repository/user"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type UserServiceImpl struct {
+	pg             *postgres.Postgres
 	userRepository repository.UserRepository
 }
 
-func NewUserService(userRepository repository.UserRepository) services.UserService {
+func NewUserService(pg *postgres.Postgres, userRepository repository.UserRepository) services.UserService {
 	return &UserServiceImpl{
+		pg:             pg,
 		userRepository: userRepository,
 	}
 }
 
 func (s *UserServiceImpl) CreateUser(ctx context.Context, name string, email string, password string) error {
-	exist, err := s.userRepository.CheckUserExists(ctx, email)
-
-	if err != nil {
-		return err
-	}
-
-	if exist {
-		return errors.New("このメールアドレスはすでに存在しています")
-	}
-
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		return err
-	}
-
-	user := &model.User{
-		Name:     name,
-		Email:    email,
-		Password: string(hashedPassword),
-	}
-	return s.userRepository.CreateUser(ctx, user)
+	log.Println("CreateUser start")
+	return s.pg.Transaction(ctx, func(txCtx context.Context) error {
+		exist, err := s.userRepository.CheckUserExists(txCtx, email)
+		if err != nil {
+			return err
+		}
+		if exist {
+			return errors.New("このメールアドレスはすでに存在しています")
+		}
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+		if err != nil {
+			return err
+		}
+		user := &model.User{
+			Name:     name,
+			Email:    email,
+			Password: string(hashedPassword),
+		}
+		log.Println("CreateUser end")
+		return s.userRepository.CreateUser(txCtx, user)
+	})
 }

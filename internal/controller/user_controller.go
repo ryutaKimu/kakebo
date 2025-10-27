@@ -40,7 +40,7 @@ func (c *UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if utf8.RuneCountInString(input.Password) < 8 {
-		err := errors.New("password must be at least 8 characters")
+		err := errors.New("パスワードは8文字以上である必要があります")
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}

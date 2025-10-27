@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"net/url"
 	"os"
 
 	_ "github.com/lib/pq"
@@ -12,20 +13,32 @@ import (
 
 type txKey struct{}
 
-var txContextKey txKey = txKey{}
+var TxContextKey txKey = txKey{}
 
 type Postgres struct {
 	DB *sql.DB
 }
 
 func NewPostgres() *Postgres {
+
+	user := os.Getenv("POSTGRES_USER")
+	password := os.Getenv("POSTGRES_PASSWORD")
+	host := os.Getenv("POSTGRES_HOST")
+	port := os.Getenv("POSTGRES_PORT")
+	dbname := os.Getenv("POSTGRES_DATABASE")
+
+	// 開発環境では SSL を無効にする
+	sslmode := os.Getenv("POSTGRES_SSLMODE")
+	if sslmode == "" {
+		sslmode = "disable"
+	}
+
+	encodedUser := url.QueryEscape(user)
+	encodedPass := url.QueryEscape(password)
+
 	dsn := fmt.Sprintf(
-		"user=%s password=%s host=%s port=%s dbname=%s sslmode=disable",
-		os.Getenv("POSTGRES_USER"),
-		os.Getenv("POSTGRES_PASSWORD"),
-		os.Getenv("POSTGRES_HOST"),
-		os.Getenv("POSTGRES_PORT"),
-		os.Getenv("POSTGRES_DATABASE"),
+		"postgresql://%s:%s@%s:%s/%s?sslmode=%s",
+		encodedUser, encodedPass, host, port, dbname, sslmode,
 	)
 
 	db, err := sql.Open("postgres", dsn)
@@ -41,7 +54,7 @@ func NewPostgres() *Postgres {
 }
 
 func (p *Postgres) Transaction(ctx context.Context, fn func(ctx context.Context) error) error {
-	if ctx.Value(txContextKey) != nil {
+	if ctx.Value(TxContextKey) != nil {
 		return fn(ctx)
 	}
 
@@ -49,7 +62,7 @@ func (p *Postgres) Transaction(ctx context.Context, fn func(ctx context.Context)
 	if err != nil {
 		return err
 	}
-	ctx = context.WithValue(ctx, txContextKey, tx)
+	ctx = context.WithValue(ctx, TxContextKey, tx)
 
 	if err := fn(ctx); err != nil {
 		if e := tx.Rollback(); e != nil {
