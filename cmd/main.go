@@ -8,6 +8,12 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/ryutaKimu/kakebo/internal/controller"
+	postgres "github.com/ryutaKimu/kakebo/internal/infra/postgre"
+	repository "github.com/ryutaKimu/kakebo/internal/infra/postgre/user"
+	"github.com/ryutaKimu/kakebo/internal/router"
+	service "github.com/ryutaKimu/kakebo/internal/service/user"
 )
 
 func main() {
@@ -18,8 +24,16 @@ func main() {
 		port = "9090"
 	}
 
+	pg := postgres.NewPostgres()
+	userRepo := repository.NewUserRepository(pg.DB)
+	userService := service.NewUserService(pg, userRepo)
+	userController := controller.NewUserController(userService)
+
+	router := router.NewRouter(*userController)
+
 	srv := &http.Server{
-		Addr: ":" + port,
+		Addr:    ":" + port,
+		Handler: router,
 	}
 
 	go func() {
@@ -32,7 +46,7 @@ func main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 	log.Println("Starting shutdown...")
-
+	pg.Close()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
