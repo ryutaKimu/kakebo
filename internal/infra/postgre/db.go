@@ -33,6 +33,10 @@ func NewPostgres() *Postgres {
 		log.Fatal(err)
 	}
 
+	if err := db.Ping(); err != nil {
+		log.Fatalf("failed to ping database: %v", err)
+	}
+
 	return &Postgres{DB: db}
 }
 
@@ -49,7 +53,7 @@ func (p *Postgres) Transaction(ctx context.Context, fn func(ctx context.Context)
 
 	if err := fn(ctx); err != nil {
 		if e := tx.Rollback(); e != nil {
-			return e
+			log.Printf("transaction rollback failed: %v", e)
 		}
 		return err
 	}

@@ -28,7 +28,6 @@ func (r *UserRepository) CheckUserExists(ctx context.Context, email string) (boo
 		From("users").
 		Select(goqu.COUNT("id")).
 		Where(goqu.I("email").Eq(email)).
-		Where(goqu.I("deleted_at").IsNull()).
 		ToSQL()
 	if err != nil {
 		return false, err
@@ -55,7 +54,7 @@ func (r *UserRepository) CreateUser(ctx context.Context, user *model.User) error
 		return err
 	}
 
-	_, err = r.db.Exec(query, args...)
+	_, err = r.db.ExecContext(ctx, query, args...)
 	if err != nil {
 		return err
 	}

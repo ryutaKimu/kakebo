@@ -29,6 +29,16 @@ func (c *UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if input.Name == "" {
+		http.Error(w, "名前は必須です", http.StatusBadRequest)
+		return
+	}
+
+	if input.Email == "" {
+		http.Error(w, "メールアドレスは必須です", http.StatusBadRequest)
+		return
+	}
+
 	if utf8.RuneCountInString(input.Password) < 8 {
 		err := errors.New("password must be at least 8 characters")
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -37,7 +47,7 @@ func (c *UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	err = c.service.CreateUser(r.Context(), input.Name, input.Email, input.Password)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Internal Server Error ", http.StatusInternalServerError)
 		return
 	}
 
