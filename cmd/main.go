@@ -26,7 +26,11 @@ func main() {
 
 	pg := postgres.NewPostgres()
 	userRepo := repository.NewUserRepository(pg.DB)
-	userService := service.NewUserService(pg, userRepo)
+	userService, err := service.NewUserService(pg, userRepo)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	userController := controller.NewUserController(userService)
 
 	router := router.NewRouter(*userController)
