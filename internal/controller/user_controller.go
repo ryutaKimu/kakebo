@@ -44,3 +44,31 @@ func (c *UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 }
+
+func (c *UserController) Login(w http.ResponseWriter, r *http.Request) {
+	var input request.LoginUserRequest
+	err := json.NewDecoder(r.Body).Decode(&input)
+	if err != nil {
+http.Error(w, "リクエストボディが不正です", http.StatusBadRequest)
+		return
+	}
+
+	if err := input.Validate(); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	authenticated, err := c.service.Login(r.Context(), input.Email, input.Password)
+	if err != nil {
+		log.Printf("failed to login: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	if !authenticated {
+http.Error(w, "メールアドレスまたはパスワードが正しくありません", http.StatusUnauthorized)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}

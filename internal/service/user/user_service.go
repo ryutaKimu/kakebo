@@ -15,11 +15,25 @@ type UserServiceImpl struct {
 	userRepository repository.UserRepository
 }
 
-func NewUserService(pg *postgres.Postgres, userRepository repository.UserRepository) interfaces.UserService {
+var dummyHash []byte
+
+func NewUserService(pg *postgres.Postgres, userRepository repository.UserRepository) (interfaces.UserService, error) {
+	if err := initDummyHash(); err != nil {
+		return nil, err
+	}
 	return &UserServiceImpl{
 		pg:             pg,
 		userRepository: userRepository,
+	}, nil
+}
+
+func initDummyHash() error {
+	h, err := bcrypt.GenerateFromPassword([]byte("dummy-password"), bcrypt.DefaultCost)
+	if err != nil {
+		return err
 	}
+	dummyHash = h
+	return nil
 }
 
 func (s *UserServiceImpl) CreateUser(ctx context.Context, name string, email string, password string) error {
@@ -42,4 +56,25 @@ func (s *UserServiceImpl) CreateUser(ctx context.Context, name string, email str
 		}
 		return s.userRepository.CreateUser(txCtx, user)
 	})
+}
+
+func (s *UserServiceImpl) Login(ctx context.Context, email string, password string) (bool, error) {
+	user, err := s.userRepository.LoginUser(ctx, email)
+	if err != nil {
+		return false, err
+	}
+
+	var hashedPassword string
+	if user == nil {
+		hashedPassword = string(dummyHash)
+	} else {
+		hashedPassword = user.Password
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+	if err != nil {
+		return false, nil
+	}
+
+	return true, nil
 }
