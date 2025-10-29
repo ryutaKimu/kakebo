@@ -52,11 +52,19 @@ func (a *App) Start() error {
 	return a.server.ListenAndServe()
 }
 
-func (a *App) Shutdown(ctx context.Context) {
-	if err := a.server.Shutdown(ctx); err != nil {
-		log.Printf("Server shutdown error: %v", err)
+func (a *App) Shutdown(ctx context.Context) error {
+	serverErr := a.server.Shutdown(ctx)
+	if serverErr != nil {
+		log.Printf("Server shutdown error: %v", serverErr)
 	}
-	if err := a.pg.Close(); err != nil {
-		log.Printf("Database close error: %v", err)
+
+	dbErr := a.pg.Close()
+	if dbErr != nil {
+		log.Printf("Database close error: %v", dbErr)
 	}
+
+	if serverErr != nil {
+		return serverErr
+	}
+	return dbErr
 }
