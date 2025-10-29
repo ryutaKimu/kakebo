@@ -49,7 +49,7 @@ func (c *UserController) Login(w http.ResponseWriter, r *http.Request) {
 	var input request.LoginUserRequest
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+http.Error(w, "リクエストボディが不正です", http.StatusBadRequest)
 		return
 	}
 
