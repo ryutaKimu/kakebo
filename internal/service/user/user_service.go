@@ -5,6 +5,7 @@ import (
 
 	postgres "github.com/ryutaKimu/kakebo/internal/infra/postgre"
 	"github.com/ryutaKimu/kakebo/internal/model"
+	"github.com/ryutaKimu/kakebo/internal/pkg/jwt"
 	repository "github.com/ryutaKimu/kakebo/internal/repository/user"
 	"github.com/ryutaKimu/kakebo/internal/service/interfaces"
 	"golang.org/x/crypto/bcrypt"
@@ -58,10 +59,10 @@ func (s *UserServiceImpl) CreateUser(ctx context.Context, name string, email str
 	})
 }
 
-func (s *UserServiceImpl) Login(ctx context.Context, email string, password string) (bool, error) {
+func (s *UserServiceImpl) Login(ctx context.Context, email string, password string) (string, error) {
 	user, err := s.userRepository.LoginUser(ctx, email)
 	if err != nil {
-		return false, err
+		return "", err
 	}
 
 	var hashedPassword string
@@ -73,8 +74,13 @@ func (s *UserServiceImpl) Login(ctx context.Context, email string, password stri
 
 	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 	if err != nil {
-		return false, nil
+		return "", nil
 	}
 
-	return true, nil
+	signed, err := jwt.NewJWT().GenerateToken(1)
+	if err != nil {
+		return "", err
+	}
+
+	return signed, nil
 }

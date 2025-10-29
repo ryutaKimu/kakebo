@@ -58,17 +58,17 @@ func (c *UserController) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	authenticated, err := c.service.Login(r.Context(), input.Email, input.Password)
+	signed, err := c.service.Login(r.Context(), input.Email, input.Password)
 	if err != nil {
 		log.Printf("failed to login: %v", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
-
-	if !authenticated {
-		http.Error(w, "メールアドレスまたはパスワードが正しくありません", http.StatusUnauthorized)
-		return
+	var response struct {
+		Token string `json:"token"`
 	}
+	response.Token = signed
 
-	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
 }
