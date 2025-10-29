@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -18,9 +19,9 @@ func main() {
 	}
 
 	go func() {
-                if err := a.Start(); err != nil && err != http.ErrServerClosed {
-                        log.Printf("Server startup error: %v", err)
-                }
+		if err := a.Start(); err != nil && err != http.ErrServerClosed {
+			log.Printf("Server startup error: %v", err)
+		}
 	}()
 
 	quit := make(chan os.Signal, 1)
