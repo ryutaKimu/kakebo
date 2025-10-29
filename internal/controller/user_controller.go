@@ -66,7 +66,7 @@ func (c *UserController) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !authenticated {
-		http.Error(w, "リクエストが失敗しました。入力を確認してください", http.StatusUnauthorized)
+http.Error(w, "メールアドレスまたはパスワードが正しくありません", http.StatusUnauthorized)
 		return
 	}
 
