@@ -49,7 +49,7 @@ func (c *UserController) Login(w http.ResponseWriter, r *http.Request) {
 	var input request.LoginUserRequest
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
@@ -66,7 +66,7 @@ func (c *UserController) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !authenticated {
-		http.Error(w, "Invalid email or password", http.StatusUnauthorized)
+		http.Error(w, "リクエストが失敗しました。入力を確認してください", http.StatusUnauthorized)
 		return
 	}
 
