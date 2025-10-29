@@ -71,6 +71,31 @@ func (r *UserRepository) CreateUser(ctx context.Context, user *model.User) error
 	return nil
 }
 
+func (r *UserRepository) LoginUser(ctx context.Context, email string) (*model.User, error) {
+	query, args, err := r.goqu.
+		From("users").
+		Select("id", "name", "email", "password").
+		Where(goqu.I("email").Eq(email)).
+		Limit(1).
+		ToSQL()
+	if err != nil {
+		return nil, err
+	}
+
+	row := r.db.QueryRowContext(ctx, query, args...)
+
+	var user model.User
+	err = row.Scan(&user.Id, &user.Name, &user.Email, &user.Password)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return &user, nil
+}
+
 func getDBExecutor(ctx context.Context, db *sql.DB) dbExecutor {
 	if tx, ok := ctx.Value(postgres.TxContextKey).(*sql.Tx); ok && tx != nil {
 		return tx

@@ -44,6 +44,18 @@ func (s *UserServiceImpl) CreateUser(ctx context.Context, name string, email str
 	})
 }
 
-func (s *UserServiceImpl) Login(ctx context.Context, email string, password string) error {
-	return nil
+func (s *UserServiceImpl) Login(ctx context.Context, email string, password string) (bool, error) {
+	user, err := s.userRepository.LoginUser(ctx, email)
+	if err != nil {
+		return false, err
+	}
+	if user == nil {
+		return false, nil
+	}
+
+	if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)) != nil {
+		return false, nil
+	}
+
+	return true, nil
 }

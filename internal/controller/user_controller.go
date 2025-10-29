@@ -48,7 +48,6 @@ func (c *UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
 func (c *UserController) Login(w http.ResponseWriter, r *http.Request) {
 	var input request.LoginUserRequest
 	err := json.NewDecoder(r.Body).Decode(&input)
-
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -59,6 +58,16 @@ func (c *UserController) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	authenticated, err := c.service.Login(r.Context(), input.Email, input.Password)
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	if !authenticated {
+		http.Error(w, "Invalid email or password", http.StatusUnauthorized)
+		return
+	}
+
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{"message":"OK"}`))
 }
