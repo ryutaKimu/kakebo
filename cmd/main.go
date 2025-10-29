@@ -9,39 +9,17 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/ryutaKimu/kakebo/internal/controller"
-	postgres "github.com/ryutaKimu/kakebo/internal/infra/postgre"
-	repository "github.com/ryutaKimu/kakebo/internal/infra/postgre/user"
-	"github.com/ryutaKimu/kakebo/internal/router"
-	service "github.com/ryutaKimu/kakebo/internal/service/user"
+	"github.com/ryutaKimu/kakebo/internal/app"
 )
 
 func main() {
-
-	port := os.Getenv("PORT")
-
-	if port == "" {
-		port = "9090"
-	}
-
-	pg := postgres.NewPostgres()
-	userRepo := repository.NewUserRepository(pg.DB)
-	userService, err := service.NewUserService(pg, userRepo)
+	a, err := app.NewApp()
 	if err != nil {
-		log.Fatal(err)
-	}
-
-	userController := controller.NewUserController(userService)
-
-	router := router.NewRouter(*userController)
-
-	srv := &http.Server{
-		Addr:    ":" + port,
-		Handler: router,
+		log.Fatalf("App initialization failed: %v", err)
 	}
 
 	go func() {
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := a.Start(); err != nil && err != http.ErrServerClosed {
 			log.Printf("Server startup error: %v", err)
 		}
 	}()
@@ -49,12 +27,13 @@ func main() {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
+
 	log.Println("Starting shutdown...")
-	pg.Close()
+
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	if err := srv.Shutdown(ctx); err != nil {
-		log.Printf("Server shutdown error: %v", err)
-	}
-	log.Println("Server stopped")
+
+	a.Shutdown(ctx)
+
+	log.Println("Server stopped gracefully")
 }
