@@ -43,3 +43,7 @@ func (s *UserServiceImpl) CreateUser(ctx context.Context, name string, email str
 		return s.userRepository.CreateUser(txCtx, user)
 	})
 }
+
+func (s *UserServiceImpl) Login(ctx context.Context, email string, password string) error {
+	return nil
+}
