@@ -1,3 +1,4 @@
+// internal/router/server.go
 package router
 
 import (
@@ -5,11 +6,13 @@ import (
 	"github.com/ryutaKimu/kakebo/internal/controller"
 )
 
-func NewRouter(userController controller.UserController) *chi.Mux {
+func NewRouter(userController *controller.UserController) *chi.Mux {
 	r := chi.NewRouter()
 
-	r.Post("/signup", userController.CreateUser)
-	r.Post("/login", userController.Login)
+	r.Route("/users", func(r chi.Router) {
+		r.Post("/signup", userController.CreateUser)
+		r.Post("/login", userController.Login)
+	})
 
 	return r
 }
