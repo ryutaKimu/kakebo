@@ -1,4 +1,4 @@
-// internal/router/server.go
+// internal/router/router.go
 package router
 
 import (
