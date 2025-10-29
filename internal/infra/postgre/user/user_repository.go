@@ -82,8 +82,8 @@ func (r *UserRepository) LoginUser(ctx context.Context, email string) (*model.Us
 		return nil, err
 	}
 
-	row := r.db.QueryRowContext(ctx, query, args...)
-
+	exec := getDBExecutor(ctx, r.db)
+	row := exec.QueryRowContext(ctx, query, args...)
 	var user model.User
 	err = row.Scan(&user.Id, &user.Name, &user.Email, &user.Password)
 	if err != nil {

@@ -60,6 +60,7 @@ func (c *UserController) Login(w http.ResponseWriter, r *http.Request) {
 
 	authenticated, err := c.service.Login(r.Context(), input.Email, input.Password)
 	if err != nil {
+		log.Printf("failed to login: %v", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
