@@ -17,15 +17,10 @@ func SetUserID(req *http.Request, userID int) *http.Request {
 }
 
 func GetCurrentUserID(ctx context.Context) (int, error) {
-	userIDInterface := ctx.Value(userIDKey{})
-	if userIDInterface == nil {
-		return 0, ErrUnauthorized
-	}
-
-	userID, ok := userIDInterface.(int)
-	if !ok {
-		return 0, ErrUnauthorized
-	}
+userID, ok := ctx.Value(userIDKey{}).(int)
+if !ok {
+	return 0, ErrUnauthorized
+}
 
 	return userID, nil
 }
