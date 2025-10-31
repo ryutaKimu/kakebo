@@ -8,6 +8,8 @@ import (
 
 type userIDKey struct{}
 
+var ErrUnauthorized = errors.New("unauthorized")
+
 func SetUserID(req *http.Request, userID int) *http.Request {
 	ctx := req.Context()
 	ctx = context.WithValue(ctx, userIDKey{}, userID)
@@ -17,12 +19,12 @@ func SetUserID(req *http.Request, userID int) *http.Request {
 func GetCurrentUserID(ctx context.Context) (int, error) {
 	userIDInterface := ctx.Value(userIDKey{})
 	if userIDInterface == nil {
-		return 0, errors.New("Unauthorized")
+		return 0, ErrUnauthorized
 	}
 
 	userID, ok := userIDInterface.(int)
 	if !ok {
-		return 0, errors.New("Unauthorized")
+		return 0, ErrUnauthorized
 	}
 
 	return userID, nil
