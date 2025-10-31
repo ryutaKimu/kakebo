@@ -91,7 +91,10 @@ func (j *JWT) GenerateToken(userID int) (string, error) {
 }
 
 func (j *JWT) VerifyToken(tokenStr string) (*CustomClaims, error) {
-	token, err := jwt.ParseWithClaims(tokenStr, &CustomClaims{}, func(token *jwt.Token) (any, error) {
+token, err := jwt.ParseWithClaims(tokenStr, &CustomClaims{}, func(token *jwt.Token) (any, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
+			return nil, errors.New("unexpected signing method")
+		}
 		return j.publicKey, nil
 	})
 	if err != nil {
