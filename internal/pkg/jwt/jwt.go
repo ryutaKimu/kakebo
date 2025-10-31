@@ -3,14 +3,14 @@ package jwt
 import (
 	"crypto/rsa"
 	"crypto/x509"
+	_ "embed"
 	"encoding/pem"
 	"errors"
 	"log"
+	"os"
 	"strconv"
 	"sync"
 	"time"
-
-	_ "embed"
 
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -32,18 +32,32 @@ var (
 	once     sync.Once
 )
 
+//go:embed cert/secret.pem
+var rawPrivKey []byte
+
+//go:embed cert/public.pem
+var rawPubKey []byte
+
 func NewJWT() *JWT {
 	once.Do(func() {
-		// 鍵ファイルの読み込み
-		rawPrivKey := []byte(`-----BEGIN RSA PRIVATE KEY-----
-...（秘密鍵）...
------END RSA PRIVATE KEY-----`)
-		rawPubKey := []byte(`-----BEGIN PUBLIC KEY-----
-...（公開鍵）...
------END PUBLIC KEY-----`)
+		var privData, pubData []byte
 
-		// 秘密鍵のパース
-		privateBlock, _ := pem.Decode(rawPrivKey)
+		// --- 🔍 環境変数を優先 ---
+		privEnv := os.Getenv("JWT_PRIVATE_KEY")
+		pubEnv := os.Getenv("JWT_PUBLIC_KEY")
+
+		if privEnv != "" && pubEnv != "" {
+			privData = []byte(privEnv)
+			pubData = []byte(pubEnv)
+			log.Println("[JWT] using keys from environment variables")
+		} else {
+			privData = rawPrivKey
+			pubData = rawPubKey
+			log.Println("[JWT] using embedded cert/private.pem and cert/public.pem")
+		}
+
+		// --- 🔑 秘密鍵のパース ---
+		privateBlock, _ := pem.Decode(privData)
 		if privateBlock == nil {
 			log.Fatal("failed to parse PEM block containing the private key")
 		}
@@ -52,8 +66,8 @@ func NewJWT() *JWT {
 			log.Fatal(err)
 		}
 
-		// 公開鍵のパース
-		publicBlock, _ := pem.Decode(rawPubKey)
+		// --- 🔑 公開鍵のパース ---
+		publicBlock, _ := pem.Decode(pubData)
 		if publicBlock == nil {
 			log.Fatal("failed to parse PEM block containing the public key")
 		}
@@ -71,7 +85,6 @@ func NewJWT() *JWT {
 			publicKey:  publicKey,
 		}
 	})
-
 	return instance
 }
 
@@ -97,10 +110,8 @@ func (j *JWT) VerifyToken(tokenStr string) (*CustomClaims, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	if !token.Valid {
 		return nil, errors.New("invalid token")
 	}
-
 	return token.Claims.(*CustomClaims), nil
 }
