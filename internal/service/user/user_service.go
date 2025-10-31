@@ -77,7 +77,7 @@ func (s *UserServiceImpl) Login(ctx context.Context, email string, password stri
 		return "", nil
 	}
 
-	signed, err := jwt.NewJWT().GenerateToken(1)
+	signed, err := jwt.NewJWT().GenerateToken(int(user.Id))
 	if err != nil {
 		return "", err
 	}

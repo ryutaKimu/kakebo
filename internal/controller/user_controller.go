@@ -64,6 +64,11 @@ func (c *UserController) Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
+	if signed == "" {
+		http.Error(w, "メールアドレスまたはパスワードが正しくありません", http.StatusUnauthorized)
+		return
+	}
+
 	var response struct {
 		Token string `json:"token"`
 	}
