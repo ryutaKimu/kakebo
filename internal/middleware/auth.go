@@ -19,17 +19,19 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		claims, err := jwt.NewJWT().VerifyToken(token)
-		if err != nil {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
+claims, err := jwt.NewJWT().VerifyToken(token)
+if err != nil {
+	log.Printf("failed to verify token: %v", err)
+	http.Error(w, "Unauthorized", http.StatusUnauthorized)
+	return
+}
 
-		userID, err := strconv.Atoi(claims.UserID)
-		if err != nil {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
+userID, err := strconv.Atoi(claims.UserID)
+if err != nil {
+	log.Printf("failed to parse userID from token: %v", err)
+	http.Error(w, "Unauthorized", http.StatusUnauthorized)
+	return
+}
 
 		r = common.SetUserID(r, userID)
 
