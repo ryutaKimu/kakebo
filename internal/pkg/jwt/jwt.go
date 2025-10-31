@@ -7,6 +7,7 @@ import (
 	"errors"
 	"log"
 	"strconv"
+	"sync"
 	"time"
 
 	_ "embed"
@@ -21,44 +22,57 @@ type JWT struct {
 	publicKey  *rsa.PublicKey
 }
 
-//go:embed cert/secret.pem
-var rawPrivKey []byte
-
-//go:embed cert/public.pem
-var rawPubKey []byte
-
 type CustomClaims struct {
 	UserID string `json:"user_id"`
 	jwt.RegisteredClaims
 }
 
+var (
+	instance *JWT
+	once     sync.Once
+)
+
 func NewJWT() *JWT {
-	privateBlock, _ := pem.Decode(rawPrivKey)
-	if privateBlock == nil {
-		log.Fatal("failed to parse PEM block containing the private key")
-	}
-	privateKey, err := x509.ParsePKCS1PrivateKey(privateBlock.Bytes)
-	if err != nil {
-		log.Fatal(err)
-	}
+	once.Do(func() {
+		// 鍵ファイルの読み込み
+		rawPrivKey := []byte(`-----BEGIN RSA PRIVATE KEY-----
+...（秘密鍵）...
+-----END RSA PRIVATE KEY-----`)
+		rawPubKey := []byte(`-----BEGIN PUBLIC KEY-----
+...（公開鍵）...
+-----END PUBLIC KEY-----`)
 
-	publicBlock, _ := pem.Decode(rawPubKey)
-	if publicBlock == nil {
-		log.Fatal("failed to parse PEM block containing the public key")
-	}
-	pubKeyIface, err := x509.ParsePKIXPublicKey(publicBlock.Bytes)
-	if err != nil {
-		log.Fatal(err)
-	}
-	publicKey, ok := pubKeyIface.(*rsa.PublicKey)
-	if !ok {
-		log.Fatal("not RSA public key")
-	}
+		// 秘密鍵のパース
+		privateBlock, _ := pem.Decode(rawPrivKey)
+		if privateBlock == nil {
+			log.Fatal("failed to parse PEM block containing the private key")
+		}
+		privateKey, err := x509.ParsePKCS1PrivateKey(privateBlock.Bytes)
+		if err != nil {
+			log.Fatal(err)
+		}
 
-	return &JWT{
-		privateKey: privateKey,
-		publicKey:  publicKey,
-	}
+		// 公開鍵のパース
+		publicBlock, _ := pem.Decode(rawPubKey)
+		if publicBlock == nil {
+			log.Fatal("failed to parse PEM block containing the public key")
+		}
+		pubKeyIface, err := x509.ParsePKIXPublicKey(publicBlock.Bytes)
+		if err != nil {
+			log.Fatal(err)
+		}
+		publicKey, ok := pubKeyIface.(*rsa.PublicKey)
+		if !ok {
+			log.Fatal("not RSA public key")
+		}
+
+		instance = &JWT{
+			privateKey: privateKey,
+			publicKey:  publicKey,
+		}
+	})
+
+	return instance
 }
 
 func (j *JWT) GenerateToken(userID int) (string, error) {
