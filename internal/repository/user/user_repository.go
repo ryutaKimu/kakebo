@@ -10,4 +10,5 @@ type UserRepository interface {
 	CreateUser(ctx context.Context, user *model.User) error
 	CheckUserExists(ctx context.Context, email string) (bool, error)
 	LoginUser(ctx context.Context, email string) (*model.User, error)
+	FindUserById(ctx context.Context, id int) (*model.User, error)
 }
