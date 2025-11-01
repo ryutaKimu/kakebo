@@ -111,6 +111,9 @@ func (r *UserRepository) FindUserById(ctx context.Context, id int) (*model.User,
 	user := &model.User{}
 	err = row.Scan(&user.Id, &user.Name, &user.Email, &user.CreatedAt)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
 		return nil, err
 	}
 	return user, nil
