@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/ryutaKimu/kakebo/internal/common"
 	"github.com/ryutaKimu/kakebo/internal/request"
 	"github.com/ryutaKimu/kakebo/internal/service/interfaces"
 )
@@ -76,4 +77,22 @@ func (c *UserController) Login(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
+}
+
+func (c *UserController) GetProfile(w http.ResponseWriter, r *http.Request) {
+	userId, err := common.GetCurrentUserID(r.Context())
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	user, err := c.service.GetProfile(r.Context(), userId)
+	if err != nil {
+		log.Printf("failed to get profile: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(user)
 }

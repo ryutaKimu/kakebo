@@ -96,6 +96,29 @@ func (r *UserRepository) LoginUser(ctx context.Context, email string) (*model.Us
 	return &user, nil
 }
 
+func (r *UserRepository) FindUserById(ctx context.Context, id int) (*model.User, error) {
+	exec := getDBExecutor(ctx, r.db)
+	query, args, err := r.goqu.
+		From("users").
+		Select("id", "name", "email", "created_at").
+		Where(goqu.I("id").Eq(id)).
+		ToSQL()
+	if err != nil {
+		return nil, err
+	}
+
+	row := exec.QueryRowContext(ctx, query, args...)
+	user := &model.User{}
+	err = row.Scan(&user.Id, &user.Name, &user.Email, &user.CreatedAt)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return user, nil
+}
+
 func getDBExecutor(ctx context.Context, db *sql.DB) dbExecutor {
 	if tx, ok := ctx.Value(postgres.TxContextKey).(*sql.Tx); ok && tx != nil {
 		return tx

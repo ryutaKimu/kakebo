@@ -84,3 +84,7 @@ func (s *UserServiceImpl) Login(ctx context.Context, email string, password stri
 
 	return signed, nil
 }
+
+func (s *UserServiceImpl) GetProfile(ctx context.Context, id int) (*model.User, error) {
+	return s.userRepository.FindUserById(ctx, id)
+}
