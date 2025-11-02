@@ -7,7 +7,7 @@ import (
 	"github.com/ryutaKimu/kakebo/internal/middleware"
 )
 
-func NewRouter(userController *controller.UserController) *chi.Mux {
+func NewRouter(userController *controller.UserController, topController *controller.TopController) *chi.Mux {
 	r := chi.NewRouter()
 
 	r.Post("/signup", userController.CreateUser)
@@ -16,6 +16,7 @@ func NewRouter(userController *controller.UserController) *chi.Mux {
 	r.Route("/user", func(r chi.Router) {
 		r.Use(middleware.AuthMiddleware)
 		r.Get("/profile", userController.GetProfile)
+		r.Get("/top", topController.GetTop)
 	})
 
 	return r
