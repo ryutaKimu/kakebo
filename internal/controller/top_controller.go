@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/ryutaKimu/kakebo/internal/common"
+	"github.com/ryutaKimu/kakebo/internal/model"
 	"github.com/ryutaKimu/kakebo/internal/service/interfaces"
 )
 
@@ -39,9 +40,12 @@ func (s *TopController) GetTop(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := map[string]interface{}{
-		"income": fixedIncome,
-		"cost":   fixedCost,
+	response := struct {
+		Income *model.FixedIncome `json:"income"`
+		Cost   float64            `json:"cost"`
+	}{
+		Income: fixedIncome,
+		Cost:   fixedCost,
 	}
 
 	w.Header().Set("Content-Type", "application/json")

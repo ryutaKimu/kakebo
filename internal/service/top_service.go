@@ -12,8 +12,8 @@ type TopServiceImpl struct {
 	repo top.TopRepository
 }
 
-func NewTopService(TopRepository top.TopRepository) interfaces.TopService {
-	return &TopServiceImpl{repo: TopRepository}
+func NewTopService(topRepository top.TopRepository) interfaces.TopService {
+	return &TopServiceImpl{repo: topRepository}
 }
 
 func (s *TopServiceImpl) GetIncome(ctx context.Context, userId int) (*model.FixedIncome, error) {

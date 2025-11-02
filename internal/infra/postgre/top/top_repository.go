@@ -63,7 +63,7 @@ func (r *TopRepository) GetTotalCost(ctx context.Context, userId int) (float64, 
 
 	query, args, err := r.goqu.
 		From("fixed_costs").
-		Select(goqu.SUM("amount").As("total_amount")).
+		Select(goqu.COALESCE(goqu.SUM("amount"), 0).As("total_amount")).
 		Where(goqu.C("user_id").Eq(userId)).
 		ToSQL()
 	if err != nil {
@@ -73,9 +73,6 @@ func (r *TopRepository) GetTotalCost(ctx context.Context, userId int) (float64, 
 	var total float64
 	row := exec.QueryRowContext(ctx, query, args...)
 	if err := row.Scan(&total); err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return 0, nil
-		}
 		return 0, fmt.Errorf("failed to scan total cost: %w", err)
 	}
 

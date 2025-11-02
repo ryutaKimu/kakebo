@@ -14,4 +14,4 @@ type ${NAME} struct {
 }
 EOF
 
-echo "✅ Created ${NAME} model"
+echo "✅ Created ${CAPITALIZED} model"

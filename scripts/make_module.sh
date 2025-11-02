@@ -19,7 +19,7 @@ cat <<EOF > internal/controller/${NAME}_controller.go
 package controller
 
 type ${CAPITALIZED}Controller struct {
-    service service.${CAPITALIZED}Service
+    service interfaces.${CAPITALIZED}Service
 }
 EOF
 
@@ -42,9 +42,9 @@ EOF
 
 # Repository
 cat <<EOF > internal/infra/postgre/${NAME}_repository.go
-package repository
+package ${NAME}
 
 type ${CAPITALIZED}Repository struct{}
 EOF
 
-echo "✅ Created ${NAME} module (controller, model, service, interface repository)"
+echo "✅ Created ${CAPITALIZED} module (controller, model, service, interface repository)"
