@@ -1,4 +1,4 @@
-package interfaces
+package top
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"github.com/ryutaKimu/kakebo/internal/model"
 )
 
-type TopService interface {
+type TopRepository interface {
 	GetIncome(ctx context.Context, userId int) (*model.FixedIncome, error)
-	GetTotalCost(ctc context.Context, userId int) (float64, error)
+	GetTotalCost(ctx context.Context, userId int) (float64, error)
 }
