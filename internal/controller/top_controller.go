@@ -32,7 +32,7 @@ func (s *TopController) GetTop(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fixedCost, err := s.service.GetTotalCost(r.Context(), userId)
+	totalCost, err := s.service.GetTotalCost(r.Context(), userId)
 
 	if err != nil {
 		log.Printf("[ERROR] failed to get Total cost: %v", err)
@@ -45,9 +45,13 @@ func (s *TopController) GetTop(w http.ResponseWriter, r *http.Request) {
 		Cost   float64            `json:"cost"`
 	}{
 		Income: fixedIncome,
-		Cost:   fixedCost,
+		Cost:   totalCost,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		return
+	}
 }
