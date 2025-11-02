@@ -13,8 +13,10 @@ import (
 )
 
 func main() {
-	// 環境に合わせて DB URL を変更
 	dbURL := os.Getenv("GOOSE_DBSTRING")
+	if dbURL == "" {
+		log.Fatal("GOOSE_DBSTRING is not set")
+	}
 
 	db, err := sql.Open("postgres", dbURL)
 	if err != nil {
@@ -31,49 +33,28 @@ func main() {
 		log.Fatalf("failed to hash password: %v", err)
 	}
 
-	userQuery := `
+	var userID int64
+	err = db.QueryRowContext(ctx, `
 		INSERT INTO users (name, email, password, created_at)
 		VALUES ($1, $2, $3, $4)
 		RETURNING id;
-	`
-
-	var userID int64
-	err = db.QueryRowContext(ctx, userQuery,
-		"テストユーザー",
-		"test@example.com",
-		string(hashedPassword),
-		time.Now(),
-	).Scan(&userID)
+	`, "テストユーザー", "test@example.com", string(hashedPassword), time.Now()).Scan(&userID)
 	if err != nil {
 		log.Fatalf("failed to insert user: %v", err)
 	}
-	fmt.Printf("Created user with id: %d\n", userID)
+	fmt.Printf("✅ Created user (id=%d)\n", userID)
 
-	// --- 固定収入作成 ---
-	incomeQuery := `
+	// --- 固定収入 ---
+	_, err = db.ExecContext(ctx, `
 		INSERT INTO fixed_incomes (user_id, name, amount, pay_day, memo, created_at)
 		VALUES ($1, $2, $3, $4, $5, $6);
-	`
-
-	_, err = db.ExecContext(ctx, incomeQuery,
-		userID,
-		"給料",
-		300000,
-		25,
-		"毎月の給与",
-		time.Now(),
-	)
+	`, userID, "本業給与", 300000, 25, "毎月の給与", time.Now())
 	if err != nil {
 		log.Fatalf("failed to insert fixed income: %v", err)
 	}
-	fmt.Println("Inserted fixed income")
+	fmt.Println("✅ Inserted fixed income")
 
-	// --- 固定費作成 ---
-	costQuery := `
-		INSERT INTO fixed_costs (user_id, name, amount, payment_date, memo, created_at)
-		VALUES ($1, $2, $3, $4, $5, $6);
-	`
-
+	// --- 固定費 ---
 	fixedCosts := []struct {
 		Name        string
 		Amount      float64
@@ -82,22 +63,63 @@ func main() {
 	}{
 		{"家賃", 80000, 27, "月末払い"},
 		{"光熱費", 12000, 15, "電気・ガス・水道"},
+		{"通信費", 8000, 20, "スマホ・Wi-Fi"},
 	}
 
-	for _, cost := range fixedCosts {
-		_, err := db.ExecContext(ctx, costQuery,
-			userID,
-			cost.Name,
-			cost.Amount,
-			cost.PaymentDate,
-			cost.Memo,
-			time.Now(),
-		)
+	for _, c := range fixedCosts {
+		_, err := db.ExecContext(ctx, `
+			INSERT INTO fixed_costs (user_id, name, amount, payment_date, memo, created_at)
+			VALUES ($1, $2, $3, $4, $5, $6);
+		`, userID, c.Name, c.Amount, c.PaymentDate, c.Memo, time.Now())
 		if err != nil {
-			log.Fatalf("failed to insert fixed cost: %v", err)
+			log.Fatalf("failed to insert fixed cost (%s): %v", c.Name, err)
 		}
-		fmt.Printf("Inserted fixed cost: %s\n", cost.Name)
+		fmt.Printf("✅ Inserted fixed cost: %s\n", c.Name)
 	}
 
-	fmt.Println("Seeder finished successfully!")
+	// --- 副収入 ---
+	subIncomes := []struct {
+		Source string
+		Amount float64
+		Month  string
+	}{
+		{"Webライティング", 25000, "2025-11"},
+		{"フリマアプリ売上", 8000, "2025-11"},
+	}
+
+	for _, si := range subIncomes {
+		_, err := db.ExecContext(ctx, `
+			INSERT INTO sub_incomes (user_id, source, amount, month, created_at)
+			VALUES ($1, $2, $3, $4, $5);
+		`, userID, si.Source, si.Amount, si.Month, time.Now())
+		if err != nil {
+			log.Fatalf("failed to insert sub income (%s): %v", si.Source, err)
+		}
+		fmt.Printf("✅ Inserted sub income: %s\n", si.Source)
+	}
+
+	// --- 収入調整 ---
+	adjustments := []struct {
+		Category string
+		Amount   float64
+		Reason   string
+		Month    string
+	}{
+		{"overtime", 12000, "10月残業分", "2025-11"},
+		{"deduction", -5000, "欠勤1日", "2025-11"},
+		{"other", 3000, "交通費清算", "2025-11"},
+	}
+
+	for _, adj := range adjustments {
+		_, err := db.ExecContext(ctx, `
+			INSERT INTO income_adjustments (user_id, category, amount, reason, month, created_at)
+			VALUES ($1, $2, $3, $4, $5, $6);
+		`, userID, adj.Category, adj.Amount, adj.Reason, adj.Month, time.Now())
+		if err != nil {
+			log.Fatalf("failed to insert income adjustment (%s): %v", adj.Reason, err)
+		}
+		fmt.Printf("✅ Inserted income adjustment: %s\n", adj.Reason)
+	}
+
+	fmt.Println("🎉 Seeder finished successfully!")
 }
