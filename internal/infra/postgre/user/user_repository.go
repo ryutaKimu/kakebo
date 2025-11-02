@@ -5,17 +5,12 @@ import (
 	"database/sql"
 
 	"github.com/doug-martin/goqu/v9"
-	postgres "github.com/ryutaKimu/kakebo/internal/infra/postgre"
+	"github.com/ryutaKimu/kakebo/internal/infra/postgre/dbutil"
 	"github.com/ryutaKimu/kakebo/internal/model"
 	repository "github.com/ryutaKimu/kakebo/internal/repository/user"
 )
 
 var _ repository.UserRepository = (*UserRepository)(nil)
-
-type dbExecutor interface {
-	ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error)
-	QueryRowContext(ctx context.Context, query string, args ...interface{}) *sql.Row
-}
 
 type UserRepository struct {
 	db   *sql.DB
@@ -30,7 +25,7 @@ func NewUserRepository(db *sql.DB) *UserRepository {
 }
 
 func (r *UserRepository) CheckUserExists(ctx context.Context, email string) (bool, error) {
-	exec := getDBExecutor(ctx, r.db)
+	exec := dbutil.GetDBExecutor(ctx, r.db)
 	query, args, err := r.goqu.
 		From("users").
 		Select(goqu.COUNT("id")).
@@ -50,7 +45,7 @@ func (r *UserRepository) CheckUserExists(ctx context.Context, email string) (boo
 }
 
 func (r *UserRepository) CreateUser(ctx context.Context, user *model.User) error {
-	exec := getDBExecutor(ctx, r.db)
+	exec := dbutil.GetDBExecutor(ctx, r.db)
 	record := goqu.Record{
 		"name":     user.Name,
 		"email":    user.Email,
@@ -82,7 +77,7 @@ func (r *UserRepository) LoginUser(ctx context.Context, email string) (*model.Us
 		return nil, err
 	}
 
-	exec := getDBExecutor(ctx, r.db)
+	exec := dbutil.GetDBExecutor(ctx, r.db)
 	row := exec.QueryRowContext(ctx, query, args...)
 	var user model.User
 	err = row.Scan(&user.Id, &user.Name, &user.Email, &user.Password)
@@ -97,7 +92,7 @@ func (r *UserRepository) LoginUser(ctx context.Context, email string) (*model.Us
 }
 
 func (r *UserRepository) FindUserById(ctx context.Context, id int) (*model.User, error) {
-	exec := getDBExecutor(ctx, r.db)
+	exec := dbutil.GetDBExecutor(ctx, r.db)
 	query, args, err := r.goqu.
 		From("users").
 		Select("id", "name", "email", "created_at").
@@ -117,11 +112,4 @@ func (r *UserRepository) FindUserById(ctx context.Context, id int) (*model.User,
 		return nil, err
 	}
 	return user, nil
-}
-
-func getDBExecutor(ctx context.Context, db *sql.DB) dbExecutor {
-	if tx, ok := ctx.Value(postgres.TxContextKey).(*sql.Tx); ok && tx != nil {
-		return tx
-	}
-	return db
 }

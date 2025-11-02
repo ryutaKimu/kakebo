@@ -8,8 +8,10 @@ import (
 
 	"github.com/ryutaKimu/kakebo/internal/controller"
 	postgres "github.com/ryutaKimu/kakebo/internal/infra/postgre"
+	"github.com/ryutaKimu/kakebo/internal/infra/postgre/top"
 	userRepoPkg "github.com/ryutaKimu/kakebo/internal/infra/postgre/user"
 	"github.com/ryutaKimu/kakebo/internal/router"
+	"github.com/ryutaKimu/kakebo/internal/service"
 	userServicePkg "github.com/ryutaKimu/kakebo/internal/service/user"
 )
 
@@ -33,7 +35,11 @@ func NewApp() (*App, error) {
 	}
 	userController := controller.NewUserController(userService)
 
-	r := router.NewRouter(userController)
+	topRepo := top.NewTopRepository(pg.DB)
+	topService := service.NewTopService(topRepo)
+	topController := controller.NewTopController(topService)
+
+	r := router.NewRouter(userController, topController)
 
 	srv := &http.Server{
 		Addr:    ":" + port,
