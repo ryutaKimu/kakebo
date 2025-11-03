@@ -8,7 +8,10 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-var Logger *zap.Logger
+var (
+	Logger  *zap.Logger
+	logFile *os.File
+)
 
 func InitLogger() error {
 	logDir := "logs"
@@ -16,7 +19,9 @@ func InitLogger() error {
 		return err
 	}
 
-	logFile, err := os.OpenFile(
+	// ファイルを開く
+	var err error
+	logFile, err = os.OpenFile(
 		filepath.Join(logDir, "app.log"),
 		os.O_CREATE|os.O_WRONLY|os.O_APPEND,
 		0666,
@@ -42,7 +47,6 @@ func InitLogger() error {
 	fileEncoder := zapcore.NewJSONEncoder(encoderConfig)
 	consoleEncoder := zapcore.NewConsoleEncoder(encoderConfig)
 
-	// TODO: 環境に応じたログレベルを取得
 	logLevel := zapcore.DebugLevel
 
 	fileCore := zapcore.NewCore(fileEncoder, zapcore.AddSync(logFile), logLevel)
@@ -51,39 +55,29 @@ func InitLogger() error {
 	core := zapcore.NewTee(fileCore, consoleCore)
 
 	Logger = zap.New(
-		// ログの出力先を指定する
 		core,
-		// ログの呼び出し元を取得する
 		zap.AddCaller(),
-		// log.goからzapLoggerを呼び出しているため、スタックトレースを1つ上に戻す
 		zap.AddCallerSkip(1),
-		// エラーレベルのログにスタックトレースを追加する
 		zap.AddStacktrace(zapcore.ErrorLevel),
 	)
 
 	return nil
 }
 
-func Info(msg string, fields ...zap.Field) {
-	Logger.Info(msg, fields...)
-}
-
-func Error(msg string, fields ...zap.Field) {
-	Logger.Error(msg, fields...)
-}
-
-func Warn(msg string, fields ...zap.Field) {
-	Logger.Warn(msg, fields...)
-}
-
-func Debug(msg string, fields ...zap.Field) {
-	Logger.Debug(msg, fields...)
-}
-
-func Fatal(msg string, fields ...zap.Field) {
-	Logger.Fatal(msg, fields...)
-}
+func Info(msg string, fields ...zap.Field)  { Logger.Info(msg, fields...) }
+func Error(msg string, fields ...zap.Field) { Logger.Error(msg, fields...) }
+func Warn(msg string, fields ...zap.Field)  { Logger.Warn(msg, fields...) }
+func Debug(msg string, fields ...zap.Field) { Logger.Debug(msg, fields...) }
+func Fatal(msg string, fields ...zap.Field) { Logger.Fatal(msg, fields...) }
 
 func Sync() {
-	Logger.Sync()
+	if Logger != nil {
+		_ = Logger.Sync()
+	}
+}
+
+func Close() {
+	if logFile != nil {
+		_ = logFile.Close()
+	}
 }
