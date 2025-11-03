@@ -2,3 +2,4 @@
 .env
 tmp/
 internal/pkg/jwt/cert/*.pem
+internal/logs
