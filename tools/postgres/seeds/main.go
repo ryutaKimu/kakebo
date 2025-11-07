@@ -48,7 +48,7 @@ func main() {
 	_, err = db.ExecContext(ctx, `
 		INSERT INTO fixed_incomes (user_id, name, amount, payment_month, memo, created_at)
 		VALUES ($1, $2, $3, $4, $5, $6);
-	`, userID, "本業給与", 300000, "11", "毎月の給与", time.Now())
+	`, userID, "本業給与", 300000, 11, "毎月の給与", time.Now())
 	if err != nil {
 		log.Fatalf("failed to insert fixed income: %v", err)
 	}
@@ -58,12 +58,12 @@ func main() {
 	fixedCosts := []struct {
 		Name         string
 		Amount       float64
-		PaymentMonth string
+		PaymentMonth int
 		Memo         string
 	}{
-		{"家賃", 80000, "11", "月末払い"},
-		{"光熱費", 12000, "11", "電気・ガス・水道"},
-		{"通信費", 8000, "11", "スマホ・Wi-Fi"},
+		{"家賃", 80000, 11, "月末払い"},
+		{"光熱費", 12000, 11, "電気・ガス・水道"},
+		{"通信費", 8000, 11, "スマホ・Wi-Fi"},
 	}
 
 	for _, c := range fixedCosts {
@@ -79,23 +79,23 @@ func main() {
 
 	// --- 副収入 ---
 	subIncomes := []struct {
-		Source       string
+		Name         string
 		Amount       float64
-		PaymentMonth string
+		PaymentMonth int
 	}{
-		{"Webライティング", 25000, "11"},
-		{"フリマアプリ売上", 8000, "11"},
+		{"Webライティング", 25000, 11},
+		{"フリマアプリ売上", 8000, 11},
 	}
 
 	for _, si := range subIncomes {
 		_, err := db.ExecContext(ctx, `
 			INSERT INTO sub_incomes (user_id, name, amount, payment_month, created_at)
 			VALUES ($1, $2, $3, $4, $5);
-		`, userID, si.Source, si.Amount, si.PaymentMonth, time.Now())
+		`, userID, si.Name, si.Amount, si.PaymentMonth, time.Now())
 		if err != nil {
-			log.Fatalf("failed to insert sub income (%s): %v", si.Source, err)
+			log.Fatalf("failed to insert sub income (%s): %v", si.Name, err)
 		}
-		fmt.Printf("✅ Inserted sub income: %s\n", si.Source)
+		fmt.Printf("✅ Inserted sub income: %s\n", si.Name)
 	}
 
 	// --- 収入調整 ---
@@ -103,11 +103,11 @@ func main() {
 		Category        string
 		Amount          float64
 		Reason          string
-		adjustmentMonth string
+		adjustmentMonth int
 	}{
-		{"overtime", 12000, "10月残業分", "11"},
-		{"deduction", -5000, "欠勤1日", "11"},
-		{"other", 3000, "交通費清算", "11"},
+		{"overtime", 12000, "10月残業分", 11},
+		{"deduction", -5000, "欠勤1日", 11},
+		{"other", 3000, "交通費清算", 11},
 	}
 
 	for _, adj := range adjustments {

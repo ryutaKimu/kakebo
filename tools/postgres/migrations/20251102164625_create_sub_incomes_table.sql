@@ -4,7 +4,7 @@ CREATE TABLE sub_incomes (
     user_id BIGINT NOT NULL REFERENCES users (id) ON DELETE CASCADE,
     name VARCHAR(255) NOT NULL,
     amount DECIMAL(10, 2) NOT NULL,
-    payment_month CHAR(7) NOT NULL,
+    payment_month SMALLINT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
