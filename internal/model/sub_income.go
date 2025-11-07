@@ -2,12 +2,11 @@ package model
 
 import "time"
 
-type FixedIncome struct {
+type SubIncome struct {
 	ID           int64     `json:"id"`
 	UserID       int64     `json:"user_id"`
-	Name         string    `json:"name"`
+	Source       string    `json:"source"`
 	Amount       float64   `json:"amount"`
-	PaymentMonth int       `json:"payment_month"`
-	Memo         string    `json:"memo,omitempty"`
+	PaymentMonth string    `json:"payment_month"`
 	CreatedAt    time.Time `json:"created_at"`
 }

@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/ryutaKimu/kakebo/internal/common"
-	"github.com/ryutaKimu/kakebo/internal/model"
 	"github.com/ryutaKimu/kakebo/internal/service/interfaces"
 )
 
@@ -25,27 +24,17 @@ func (s *TopController) GetTop(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fixedIncome, err := s.service.GetIncome(r.Context(), userId)
-	if err != nil {
-		log.Printf("[ERROR] failed to get income: %v", err)
-		http.Error(w, "failed to get income", http.StatusInternalServerError)
-		return
-	}
-
-	totalCost, err := s.service.GetTotalCost(r.Context(), userId)
-
+	totalAmount, err := s.service.GetMonthlyTotalIncome(r.Context(), userId)
 	if err != nil {
 		log.Printf("[ERROR] failed to get Total cost: %v", err)
-		http.Error(w, "failed to get cost", http.StatusInternalServerError)
+		http.Error(w, "failed to get total", http.StatusInternalServerError)
 		return
 	}
 
 	response := struct {
-		Income *model.FixedIncome `json:"income"`
-		Cost   float64            `json:"cost"`
+		TotalAmount float64 `json:"total_amount"`
 	}{
-		Income: fixedIncome,
-		Cost:   totalCost,
+		TotalAmount: totalAmount,
 	}
 
 	w.Header().Set("Content-Type", "application/json")

@@ -2,8 +2,8 @@ package service
 
 import (
 	"context"
+	"time"
 
-	"github.com/ryutaKimu/kakebo/internal/model"
 	"github.com/ryutaKimu/kakebo/internal/repository/top"
 	"github.com/ryutaKimu/kakebo/internal/service/interfaces"
 )
@@ -16,10 +16,36 @@ func NewTopService(topRepository top.TopRepository) interfaces.TopService {
 	return &TopServiceImpl{repo: topRepository}
 }
 
-func (s *TopServiceImpl) GetIncome(ctx context.Context, userId int) (*model.FixedIncome, error) {
-	return s.repo.GetIncome(ctx, userId)
+func (s *TopServiceImpl) GetMonthlyTotalIncome(ctx context.Context, userId int) (float64, error) {
+	month := int(time.Now().Month())
+	fixedIncome, err := s.repo.GetSumFixedIncome(ctx, userId, month)
+	if err != nil {
+		return 0, err
+	}
+
+	subIncome, err := s.repo.GetSumSubIncome(ctx, userId, month)
+	if err != nil {
+		return 0, err
+	}
+
+	incomeAdjusted, err := s.repo.GetSumIncomeAdjustment(ctx, userId, month)
+	if err != nil {
+		return 0, err
+	}
+
+	costs, err := s.repo.GetSumCost(ctx, userId, month)
+	if err != nil {
+		return 0, err
+	}
+
+	totalAmount := fixedIncome + subIncome
+
+	total := (totalAmount + incomeAdjusted) - costs
+
+	return total, nil
 }
 
-func (s *TopServiceImpl) GetTotalCost(ctx context.Context, userId int) (float64, error) {
-	return s.repo.GetTotalCost(ctx, userId)
+func (s *TopServiceImpl) GetSumCost(ctx context.Context, userId int) (float64, error) {
+	month := int(time.Now().Month())
+	return s.repo.GetSumCost(ctx, userId, month)
 }

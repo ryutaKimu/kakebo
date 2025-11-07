@@ -2,11 +2,11 @@ package top
 
 import (
 	"context"
-
-	"github.com/ryutaKimu/kakebo/internal/model"
 )
 
 type TopRepository interface {
-	GetIncome(ctx context.Context, userId int) (*model.FixedIncome, error)
-	GetTotalCost(ctx context.Context, userId int) (float64, error)
+	GetSumFixedIncome(ctx context.Context, userId int, month int) (float64, error)
+	GetSumSubIncome(ctx context.Context, userId int, month int) (float64, error)
+	GetSumIncomeAdjustment(ctx context.Context, userId int, month int) (float64, error)
+	GetSumCost(ctx context.Context, userId int, month int) (float64, error)
 }
