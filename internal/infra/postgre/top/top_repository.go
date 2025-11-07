@@ -25,87 +25,29 @@ func NewTopRepository(db *sql.DB) *TopRepository {
 }
 
 func (r *TopRepository) GetSumFixedIncome(ctx context.Context, userId int, month int) (float64, error) {
-	exec := dbutil.GetDBExecutor(ctx, r.db)
-	query, args, err := r.goqu.
-		From("fixed_incomes").
-		Select(goqu.COALESCE(goqu.SUM("amount"), 0)).
-		Where(
-			goqu.C("user_id").Eq(userId),
-			goqu.L("EXTRACT(MONTH FROM created_at) = ?", month),
-		).
-		ToSQL()
-	if err != nil {
-		return 0, err
-	}
-
-	var total float64
-	row := exec.QueryRowContext(ctx, query, args...)
-	if err := row.Scan(&total); err != nil {
-		return 0, fmt.Errorf("failed to scan total: %w", err)
-	}
-
-	return total, nil
-
+	return r.getSumAmount(ctx, "fixed_incomes", "payment_month", userId, month)
 }
 
 func (r *TopRepository) GetSumSubIncome(ctx context.Context, userId int, month int) (float64, error) {
-	exec := dbutil.GetDBExecutor(ctx, r.db)
-	query, args, err := r.goqu.
-		From("sub_incomes").
-		Select(goqu.COALESCE(goqu.SUM("amount"), 0)).
-		Where(
-			goqu.C("user_id").Eq(userId),
-			goqu.L("EXTRACT(MONTH FROM created_at) = ?", month),
-		).
-		ToSQL()
-	if err != nil {
-		return 0, err
-	}
-
-	var total float64
-	row := exec.QueryRowContext(ctx, query, args...)
-	if err := row.Scan(&total); err != nil {
-		return 0, fmt.Errorf("failed to scan total: %w", err)
-	}
-
-	return total, nil
-
+	return r.getSumAmount(ctx, "sub_incomes", "payment_month", userId, month)
 }
 
 func (r *TopRepository) GetSumIncomeAdjustment(ctx context.Context, userId int, month int) (float64, error) {
-	exec := dbutil.GetDBExecutor(ctx, r.db)
-
-	query, args, err := r.goqu.
-		From("income_adjustments").
-		Select(goqu.COALESCE(goqu.SUM("amount"), 0)).As("total_amount").
-		Where(
-			goqu.C("user_id").Eq(userId),
-			goqu.L("EXTRACT(MONTH FROM created_at) = ?", month),
-		).
-		ToSQL()
-
-	if err != nil {
-		return 0, err
-	}
-
-	var total float64
-	row := exec.QueryRowContext(ctx, query, args...)
-	if err := row.Scan(&total); err != nil {
-		return 0, fmt.Errorf("failed to scan total: %w", err)
-	}
-
-	return total, nil
+	return r.getSumAmount(ctx, "income_adjustments", "adjustment_month", userId, month)
 }
 
 func (r *TopRepository) GetSumCost(ctx context.Context, userId int, month int) (float64, error) {
-	exec := dbutil.GetDBExecutor(ctx, r.db)
+	return r.getSumAmount(ctx, "fixed_costs", "payment_month", userId, month)
+}
 
+func (r *TopRepository) getSumAmount(ctx context.Context, tableName string, monthColumnName string, userId int, month int) (float64, error) {
+	exec := dbutil.GetDBExecutor(ctx, r.db)
 	query, args, err := r.goqu.
-		From("fixed_costs").
-		Select(goqu.COALESCE(goqu.SUM("amount"), 0).As("total_amount")).
+		From(tableName).
+		Select(goqu.COALESCE(goqu.SUM("amount"), 0)).
 		Where(
 			goqu.C("user_id").Eq(userId),
-			goqu.L("EXTRACT(MONTH FROM created_at) = ?", month),
+			goqu.L(fmt.Sprintf("%s = ?", monthColumnName), month),
 		).
 		ToSQL()
 	if err != nil {
@@ -115,7 +57,7 @@ func (r *TopRepository) GetSumCost(ctx context.Context, userId int, month int) (
 	var total float64
 	row := exec.QueryRowContext(ctx, query, args...)
 	if err := row.Scan(&total); err != nil {
-		return 0, fmt.Errorf("failed to scan total cost: %w", err)
+		return 0, fmt.Errorf("failed to scan total from %s: %w", tableName, err)
 	}
 
 	return total, nil
