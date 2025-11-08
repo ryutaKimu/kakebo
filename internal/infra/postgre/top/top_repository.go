@@ -44,15 +44,16 @@ func (r *TopRepository) GetSumCost(ctx context.Context, userId int, now time.Tim
 func (r *TopRepository) getSumAmount(ctx context.Context, tableName string, columnName string, userId int, now time.Time) (float64, error) {
 	exec := dbutil.GetDBExecutor(ctx, r.db)
 
-	year := int(now.Year())
-	month := int(now.Month())
+	year, month, _ := now.Date()
+	startOfMonth := time.Date(year, month, 1, 0, 0, 0, 0, now.Location())
+	endOfMonth := startOfMonth.AddDate(0, 1, 0)
 	query, args, err := r.goqu.
 		From(tableName).
 		Select(goqu.COALESCE(goqu.SUM("amount"), 0)).
 		Where(
 			goqu.C("user_id").Eq(userId),
-			goqu.L("EXTRACT(YEAR FROM ?)", goqu.I(columnName)).Eq(year),
-			goqu.L("EXTRACT(MONTH FROM ?)", goqu.I(columnName)).Eq(month),
+			goqu.I(columnName).Gte(startOfMonth),
+			goqu.I(columnName).Lt(endOfMonth),
 		).
 		ToSQL()
 	if err != nil {
