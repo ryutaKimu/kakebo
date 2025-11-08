@@ -103,7 +103,7 @@ func main() {
 		Category        string
 		Amount          float64
 		Reason          string
-		adjustmentMonth int
+		AdjustmentMonth int
 	}{
 		{"overtime", 12000, "10月残業分", 11},
 		{"deduction", -5000, "欠勤1日", 11},
