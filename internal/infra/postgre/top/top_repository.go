@@ -25,26 +25,25 @@ func NewTopRepository(db *sql.DB) *TopRepository {
 	}
 }
 
-func (r *TopRepository) GetSumFixedIncome(ctx context.Context, userId int) (float64, error) {
-	return r.getSumAmount(ctx, "fixed_incomes", "payment_date", userId)
+func (r *TopRepository) GetSumFixedIncome(ctx context.Context, userId int, now time.Time) (float64, error) {
+	return r.getSumAmount(ctx, "fixed_incomes", "payment_date", userId, now)
 }
 
-func (r *TopRepository) GetSumSubIncome(ctx context.Context, userId int) (float64, error) {
-	return r.getSumAmount(ctx, "sub_incomes", "payment_date", userId)
+func (r *TopRepository) GetSumSubIncome(ctx context.Context, userId int, now time.Time) (float64, error) {
+	return r.getSumAmount(ctx, "sub_incomes", "payment_date", userId, now)
 }
 
-func (r *TopRepository) GetSumIncomeAdjustment(ctx context.Context, userId int) (float64, error) {
-	return r.getSumAmount(ctx, "income_adjustments", "adjustment_date", userId)
+func (r *TopRepository) GetSumIncomeAdjustment(ctx context.Context, userId int, now time.Time) (float64, error) {
+	return r.getSumAmount(ctx, "income_adjustments", "adjustment_date", userId, now)
 }
 
-func (r *TopRepository) GetSumCost(ctx context.Context, userId int) (float64, error) {
-	return r.getSumAmount(ctx, "fixed_costs", "payment_date", userId)
+func (r *TopRepository) GetSumCost(ctx context.Context, userId int, now time.Time) (float64, error) {
+	return r.getSumAmount(ctx, "fixed_costs", "payment_date", userId, now)
 }
 
-func (r *TopRepository) getSumAmount(ctx context.Context, tableName string, columnName string, userId int) (float64, error) {
+func (r *TopRepository) getSumAmount(ctx context.Context, tableName string, columnName string, userId int, now time.Time) (float64, error) {
 	exec := dbutil.GetDBExecutor(ctx, r.db)
 
-	now := time.Now()
 	year := int(now.Year())
 	month := int(now.Month())
 	extractYearExpr := fmt.Sprintf("EXTRACT(YEAR FROM %s)", columnName)

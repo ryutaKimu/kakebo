@@ -27,24 +27,24 @@ func (s *TopController) GetTop(w http.ResponseWriter, r *http.Request) {
 	totalIncome, err := s.service.GetMonthlyTotalIncome(r.Context(), userId)
 	if err != nil {
 		log.Printf("[ERROR] failed to get monthly total income: %v", err)
-                http.Error(w, "failed to get monthly total income", http.StatusInternalServerError)
+		http.Error(w, "failed to get monthly total income", http.StatusInternalServerError)
 		return
 	}
 
-	costTotalAmount, err := s.service.GetMonthlyTotalCost(r.Context(), userId)
+	totalCost, err := s.service.GetMonthlyTotalCost(r.Context(), userId)
 
 	if err != nil {
 		log.Printf("[ERROR] failed to get monthly total cost: %v", err)
-                http.Error(w, "failed to get monthly total cost", http.StatusInternalServerError)
+		http.Error(w, "failed to get monthly total cost", http.StatusInternalServerError)
 		return
 	}
 
 	response := struct {
-		TotalIncome     float64 `json:"total_income"`
-		CostTotalAmount float64 `json:"total_cost"`
+		TotalIncome float64 `json:"total_income"`
+		TotalCost   float64 `json:"total_cost"`
 	}{
-		TotalIncome:     totalIncome,
-		CostTotalAmount: costTotalAmount,
+		TotalIncome: totalIncome,
+		TotalCost:   totalCost,
 	}
 
 	w.Header().Set("Content-Type", "application/json")

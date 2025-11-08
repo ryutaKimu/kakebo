@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"time"
 
 	"github.com/ryutaKimu/kakebo/internal/repository/top"
 	"github.com/ryutaKimu/kakebo/internal/service/interfaces"
@@ -23,10 +24,11 @@ func (s *TopServiceImpl) GetMonthlyTotalIncome(ctx context.Context, userId int) 
 		adjustmentAmount  float64
 	)
 
+	now := time.Now()
 	g, ctx := errgroup.WithContext(ctx)
 
 	g.Go(func() error {
-		fi, err := s.repo.GetSumFixedIncome(ctx, userId)
+		fi, err := s.repo.GetSumFixedIncome(ctx, userId, now)
 		if err != nil {
 			return err
 		}
@@ -35,7 +37,7 @@ func (s *TopServiceImpl) GetMonthlyTotalIncome(ctx context.Context, userId int) 
 	})
 
 	g.Go(func() error {
-		si, err := s.repo.GetSumSubIncome(ctx, userId)
+		si, err := s.repo.GetSumSubIncome(ctx, userId, now)
 		if err != nil {
 			return err
 		}
@@ -44,7 +46,7 @@ func (s *TopServiceImpl) GetMonthlyTotalIncome(ctx context.Context, userId int) 
 	})
 
 	g.Go(func() error {
-		adj, err := s.repo.GetSumIncomeAdjustment(ctx, userId)
+		adj, err := s.repo.GetSumIncomeAdjustment(ctx, userId, now)
 		if err != nil {
 			return err
 		}
@@ -61,7 +63,8 @@ func (s *TopServiceImpl) GetMonthlyTotalIncome(ctx context.Context, userId int) 
 }
 
 func (s *TopServiceImpl) GetMonthlyTotalCost(ctx context.Context, userId int) (float64, error) {
-	cost, err := s.repo.GetSumCost(ctx, userId)
+	now := time.Now()
+	cost, err := s.repo.GetSumCost(ctx, userId, now)
 	if err != nil {
 		return 0, err
 	}
