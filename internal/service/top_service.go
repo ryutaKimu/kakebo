@@ -65,5 +65,5 @@ func (s *TopServiceImpl) GetMonthlyTotalCost(ctx context.Context, userId int) (f
 	if err != nil {
 		return 0, err
 	}
-return cost, nil
+        return cost, nil
 }
