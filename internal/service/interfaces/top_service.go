@@ -2,11 +2,9 @@ package interfaces
 
 import (
 	"context"
-
-	"github.com/ryutaKimu/kakebo/internal/model"
+	"time"
 )
 
 type TopService interface {
-	GetIncome(ctx context.Context, userId int) (*model.FixedIncome, error)
-	GetTotalCost(ctx context.Context, userId int) (float64, error)
+	GetMonthlyPageSummary(ctx context.Context, userId int, now time.Time) (float64, float64, error)
 }
