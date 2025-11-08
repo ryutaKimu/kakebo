@@ -26,7 +26,7 @@ func (s *TopController) GetTop(w http.ResponseWriter, r *http.Request) {
 
 	totalAmount, err := s.service.GetMonthlyTotalIncome(r.Context(), userId)
 	if err != nil {
-		log.Printf("[ERROR] failed to get Total cost: %v", err)
+log.Printf("[ERROR] failed to get monthly total income: %v", err)
 		http.Error(w, "failed to get total", http.StatusInternalServerError)
 		return
 	}
