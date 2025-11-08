@@ -16,12 +16,12 @@ type TopServiceImpl struct {
 func NewTopService(topRepository top.TopRepository) interfaces.TopService {
 	return &TopServiceImpl{repo: topRepository}
 }
-
-func (s *TopServiceImpl) GetMonthlyTotalIncome(ctx context.Context, userId int, now time.Time) (float64, error) {
+func (s *TopServiceImpl) GetMonthlyPageSummary(ctx context.Context, userId int, now time.Time) (float64, float64, error) {
 	var (
 		fixedIncomeAmount float64
 		subIncomeAmount   float64
 		adjustmentAmount  float64
+		totalCost         float64
 	)
 
 	g, ctx := errgroup.WithContext(ctx)
@@ -53,18 +53,19 @@ func (s *TopServiceImpl) GetMonthlyTotalIncome(ctx context.Context, userId int, 
 		return nil
 	})
 
+	g.Go(func() error {
+		cost, err := s.repo.GetSumCost(ctx, userId, now)
+		if err != nil {
+			return err
+		}
+		totalCost = cost
+		return nil
+	})
+
 	if err := g.Wait(); err != nil {
-		return 0, err
+		return 0, 0, err
 	}
 
-	total := fixedIncomeAmount + subIncomeAmount + adjustmentAmount
-	return total, nil
-}
-
-func (s *TopServiceImpl) GetMonthlyTotalCost(ctx context.Context, userId int, now time.Time) (float64, error) {
-	cost, err := s.repo.GetSumCost(ctx, userId, now)
-	if err != nil {
-		return 0, err
-	}
-	return cost, nil
+	totalIncome := fixedIncomeAmount + subIncomeAmount + adjustmentAmount
+	return totalIncome, totalCost, nil
 }
