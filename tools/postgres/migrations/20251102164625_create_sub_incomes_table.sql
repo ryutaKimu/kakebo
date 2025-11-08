@@ -8,7 +8,7 @@ CREATE TABLE sub_incomes (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-COMMENT ON COLUMN sub_incomes.payment_date IS '例: 11';
+COMMENT ON COLUMN sub_incomes.payment_date IS '例: 2025-11';
 
 -- +goose Down
 DROP TABLE IF EXISTS sub_incomes;
