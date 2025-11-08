@@ -56,7 +56,7 @@ func (s *TopServiceImpl) GetMonthlyTotalIncome(ctx context.Context, userId int) 
 		return 0, err
 	}
 
-	total := (fixedIncomeAmount + subIncomeAmount) + adjustmentAmount
+        total := fixedIncomeAmount + subIncomeAmount + adjustmentAmount
 	return total, nil
 }
 
