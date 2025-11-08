@@ -47,7 +47,7 @@ func (r *TopRepository) getSumAmount(ctx context.Context, tableName string, mont
 		Select(goqu.COALESCE(goqu.SUM("amount"), 0)).
 		Where(
 			goqu.C("user_id").Eq(userId),
-			goqu.L(fmt.Sprintf("%s = ?", monthColumnName), month),
+			goqu.C(monthColumnName).Eq(month),
 		).
 		ToSQL()
 	if err != nil {
