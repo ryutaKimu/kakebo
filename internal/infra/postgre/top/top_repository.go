@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/doug-martin/goqu/v9"
 	"github.com/ryutaKimu/kakebo/internal/infra/postgre/dbutil"
@@ -24,30 +25,34 @@ func NewTopRepository(db *sql.DB) *TopRepository {
 	}
 }
 
-func (r *TopRepository) GetSumFixedIncome(ctx context.Context, userId int, month int) (float64, error) {
-	return r.getSumAmount(ctx, "fixed_incomes", "payment_month", userId, month)
+func (r *TopRepository) GetSumFixedIncome(ctx context.Context, userId int) (float64, error) {
+	return r.getSumAmount(ctx, "fixed_incomes", "payment_date", userId)
 }
 
-func (r *TopRepository) GetSumSubIncome(ctx context.Context, userId int, month int) (float64, error) {
-	return r.getSumAmount(ctx, "sub_incomes", "payment_month", userId, month)
+func (r *TopRepository) GetSumSubIncome(ctx context.Context, userId int) (float64, error) {
+	return r.getSumAmount(ctx, "sub_incomes", "payment_date", userId)
 }
 
-func (r *TopRepository) GetSumIncomeAdjustment(ctx context.Context, userId int, month int) (float64, error) {
-	return r.getSumAmount(ctx, "income_adjustments", "adjustment_month", userId, month)
+func (r *TopRepository) GetSumIncomeAdjustment(ctx context.Context, userId int) (float64, error) {
+	return r.getSumAmount(ctx, "income_adjustments", "adjustment_date", userId)
 }
 
-func (r *TopRepository) GetSumCost(ctx context.Context, userId int, month int) (float64, error) {
-	return r.getSumAmount(ctx, "fixed_costs", "payment_month", userId, month)
+func (r *TopRepository) GetSumCost(ctx context.Context, userId int) (float64, error) {
+	return r.getSumAmount(ctx, "fixed_costs", "payment_date", userId)
 }
 
-func (r *TopRepository) getSumAmount(ctx context.Context, tableName string, monthColumnName string, userId int, month int) (float64, error) {
+func (r *TopRepository) getSumAmount(ctx context.Context, tableName string, columnName string, userId int) (float64, error) {
 	exec := dbutil.GetDBExecutor(ctx, r.db)
+
+	now := time.Now()
+	month := int(now.Month())
+	extractExpr := fmt.Sprintf("EXTRACT(MONTH FROM %s)", columnName)
 	query, args, err := r.goqu.
 		From(tableName).
 		Select(goqu.COALESCE(goqu.SUM("amount"), 0)).
 		Where(
 			goqu.C("user_id").Eq(userId),
-			goqu.C(monthColumnName).Eq(month),
+			goqu.L(extractExpr).Eq(month),
 		).
 		ToSQL()
 	if err != nil {
