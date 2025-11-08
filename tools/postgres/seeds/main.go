@@ -114,7 +114,7 @@ func main() {
 		_, err := db.ExecContext(ctx, `
 			INSERT INTO income_adjustments (user_id, category, amount, reason, adjustment_month, created_at)
 			VALUES ($1, $2, $3, $4, $5, $6);
-		`, userID, adj.Category, adj.Amount, adj.Reason, adj.adjustmentMonth, time.Now())
+		`, userID, adj.Category, adj.Amount, adj.Reason, adj.AdjustmentMonth, time.Now())
 		if err != nil {
 			log.Fatalf("failed to insert income adjustment (%s): %v", adj.Reason, err)
 		}
