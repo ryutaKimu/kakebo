@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/ryutaKimu/kakebo/internal/common"
 	"github.com/ryutaKimu/kakebo/internal/service/interfaces"
@@ -24,14 +25,15 @@ func (s *TopController) GetTop(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	totalIncome, err := s.service.GetMonthlyTotalIncome(r.Context(), userId)
+	now := time.Now()
+	totalIncome, err := s.service.GetMonthlyTotalIncome(r.Context(), userId, now)
 	if err != nil {
 		log.Printf("[ERROR] failed to get monthly total income: %v", err)
 		http.Error(w, "failed to get monthly total income", http.StatusInternalServerError)
 		return
 	}
 
-	totalCost, err := s.service.GetMonthlyTotalCost(r.Context(), userId)
+	totalCost, err := s.service.GetMonthlyTotalCost(r.Context(), userId, now)
 
 	if err != nil {
 		log.Printf("[ERROR] failed to get monthly total cost: %v", err)

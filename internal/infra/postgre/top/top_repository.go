@@ -46,15 +46,13 @@ func (r *TopRepository) getSumAmount(ctx context.Context, tableName string, colu
 
 	year := int(now.Year())
 	month := int(now.Month())
-	extractYearExpr := fmt.Sprintf("EXTRACT(YEAR FROM %s)", columnName)
-	extractMonthExpr := fmt.Sprintf("EXTRACT(MONTH FROM %s)", columnName)
 	query, args, err := r.goqu.
 		From(tableName).
 		Select(goqu.COALESCE(goqu.SUM("amount"), 0)).
 		Where(
 			goqu.C("user_id").Eq(userId),
-			goqu.L(extractYearExpr).Eq(year),
-			goqu.L(extractMonthExpr).Eq(month),
+			goqu.L("EXTRACT(YEAR FROM ?)", goqu.I(columnName)).Eq(year),
+			goqu.L("EXTRACT(MONTH FROM ?)", goqu.I(columnName)).Eq(month),
 		).
 		ToSQL()
 	if err != nil {
