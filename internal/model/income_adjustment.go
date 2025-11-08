@@ -8,6 +8,6 @@ type IncomeAdjustment struct {
 	Category        string    `db:"category" json:"category"`
 	Amount          float64   `db:"amount" json:"amount"`
 	Reason          string    `db:"reason" json:"reason"`
-	AdjustmentMonth int       `db:"adjustment_month" json:"adjustment_month"`
+AdjustmentDate  time.Time `db:"adjustment_date" json:"adjustment_date"`
 	CreatedAt       time.Time `db:"created_at" json:"created_at"`
 }
