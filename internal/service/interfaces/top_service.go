@@ -6,5 +6,5 @@ import (
 )
 
 type TopService interface {
-	GetMonthlyPageSummary(ctx context.Context, userId int, now time.Time) (totalIncome float64, totalCost float64, err error)
+	GetMonthlyPageSummary(ctx context.Context, userId int, now time.Time) (float64, float64, error)
 }
