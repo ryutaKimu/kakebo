@@ -35,7 +35,7 @@ func (s *TopController) GetTop(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		log.Printf("[ERROR] failed to get monthly total cost: %v", err)
-		http.Error(w, "failed to get cost", http.StatusInternalServerError)
+                http.Error(w, "failed to get monthly total cost", http.StatusInternalServerError)
 		return
 	}
 
