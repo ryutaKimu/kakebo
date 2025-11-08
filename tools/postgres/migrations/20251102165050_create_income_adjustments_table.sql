@@ -11,7 +11,7 @@ CREATE TABLE income_adjustments (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-COMMENT ON COLUMN income_adjustments.adjustment_date IS '例: 2025年11月1日';
+COMMENT ON COLUMN income_adjustments.adjustment_date IS '例: 2025-11-1';
 
 -- +goose Down
 DROP TABLE IF EXISTS income_adjustments;
