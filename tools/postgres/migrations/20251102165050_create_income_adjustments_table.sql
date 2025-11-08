@@ -7,11 +7,11 @@ CREATE TABLE income_adjustments (
     category income_adjustment_category NOT NULL,
     amount DECIMAL(10, 2) NOT NULL,
     reason VARCHAR(255),
-    adjustment_month SMALLINT NOT NULL,
+    adjustment_date DATE NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-COMMENT ON COLUMN income_adjustments.adjustment_month IS '例: 11';
+COMMENT ON COLUMN income_adjustments.adjustment_date IS '例: 2025年11月1日';
 
 -- +goose Down
 DROP TABLE IF EXISTS income_adjustments;

@@ -46,9 +46,9 @@ func main() {
 
 	// --- 固定収入 ---
 	_, err = db.ExecContext(ctx, `
-		INSERT INTO fixed_incomes (user_id, name, amount, payment_month, memo, created_at)
+		INSERT INTO fixed_incomes (user_id, name, amount, payment_date, memo, created_at)
 		VALUES ($1, $2, $3, $4, $5, $6);
-	`, userID, "本業給与", 300000, 11, "毎月の給与", time.Now())
+	`, userID, "本業給与", 300000, time.Date(2025, 11, 25, 0, 0, 0, 0, time.Local), "毎月の給与", time.Now())
 	if err != nil {
 		log.Fatalf("failed to insert fixed income: %v", err)
 	}
@@ -56,21 +56,21 @@ func main() {
 
 	// --- 固定費 ---
 	fixedCosts := []struct {
-		Name         string
-		Amount       float64
-		PaymentMonth int
-		Memo         string
+		Name        string
+		Amount      float64
+		PaymentDate time.Time
+		Memo        string
 	}{
-		{"家賃", 80000, 11, "月末払い"},
-		{"光熱費", 12000, 11, "電気・ガス・水道"},
-		{"通信費", 8000, 11, "スマホ・Wi-Fi"},
+		{"家賃", 80000, time.Date(2025, 11, 30, 0, 0, 0, 0, time.Local), "月末払い"},
+		{"光熱費", 12000, time.Date(2025, 11, 24, 0, 0, 0, 0, time.Local), "電気・ガス・水道"},
+		{"通信費", 8000, time.Date(2025, 11, 26, 0, 0, 0, 0, time.Local), "スマホ・Wi-Fi"},
 	}
 
 	for _, c := range fixedCosts {
 		_, err := db.ExecContext(ctx, `
-			INSERT INTO fixed_costs (user_id, name, amount, payment_month, memo, created_at)
+			INSERT INTO fixed_costs (user_id, name, amount, payment_date, memo, created_at)
 			VALUES ($1, $2, $3, $4, $5, $6);
-		`, userID, c.Name, c.Amount, c.PaymentMonth, c.Memo, time.Now())
+		`, userID, c.Name, c.Amount, c.PaymentDate, c.Memo, time.Now())
 		if err != nil {
 			log.Fatalf("failed to insert fixed cost (%s): %v", c.Name, err)
 		}
@@ -79,19 +79,19 @@ func main() {
 
 	// --- 副収入 ---
 	subIncomes := []struct {
-		Name         string
-		Amount       float64
-		PaymentMonth int
+		Name        string
+		Amount      float64
+		PaymentDate time.Time
 	}{
-		{"Webライティング", 25000, 11},
-		{"フリマアプリ売上", 8000, 11},
+		{"Webライティング", 25000, time.Date(2025, 11, 25, 0, 0, 0, 0, time.Local)},
+		{"フリマアプリ売上", 8000, time.Date(2025, 11, 25, 0, 0, 0, 0, time.Local)},
 	}
 
 	for _, si := range subIncomes {
 		_, err := db.ExecContext(ctx, `
-			INSERT INTO sub_incomes (user_id, name, amount, payment_month, created_at)
+			INSERT INTO sub_incomes (user_id, name, amount, payment_date, created_at)
 			VALUES ($1, $2, $3, $4, $5);
-		`, userID, si.Name, si.Amount, si.PaymentMonth, time.Now())
+		`, userID, si.Name, si.Amount, si.PaymentDate, time.Now())
 		if err != nil {
 			log.Fatalf("failed to insert sub income (%s): %v", si.Name, err)
 		}
@@ -100,21 +100,21 @@ func main() {
 
 	// --- 収入調整 ---
 	adjustments := []struct {
-		Category        string
-		Amount          float64
-		Reason          string
-		AdjustmentMonth int
+		Category       string
+		Amount         float64
+		Reason         string
+		AdjustmentDate time.Time
 	}{
-		{"overtime", 12000, "10月残業分", 11},
-		{"deduction", -5000, "欠勤1日", 11},
-		{"other", 3000, "交通費清算", 11},
+		{"overtime", 12000, "10月残業分", time.Date(2025, 11, 30, 0, 0, 0, 0, time.Local)},
+		{"deduction", -5000, "欠勤1日", time.Date(2025, 11, 30, 0, 0, 0, 0, time.Local)},
+		{"other", 3000, "交通費清算", time.Date(2025, 11, 30, 0, 0, 0, 0, time.Local)},
 	}
 
 	for _, adj := range adjustments {
 		_, err := db.ExecContext(ctx, `
-			INSERT INTO income_adjustments (user_id, category, amount, reason, adjustment_month, created_at)
+			INSERT INTO income_adjustments (user_id, category, amount, reason, adjustment_date, created_at)
 			VALUES ($1, $2, $3, $4, $5, $6);
-		`, userID, adj.Category, adj.Amount, adj.Reason, adj.AdjustmentMonth, time.Now())
+		`, userID, adj.Category, adj.Amount, adj.Reason, adj.AdjustmentDate, time.Now())
 		if err != nil {
 			log.Fatalf("failed to insert income adjustment (%s): %v", adj.Reason, err)
 		}

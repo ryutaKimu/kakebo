@@ -5,7 +5,7 @@ CREATE TABLE fixed_incomes (
     user_id BIGINT NOT NULL,
     name VARCHAR(255) NOT NULL,
     amount NUMERIC(10, 2) NOT NULL,
-    payment_month SMALLINT NOT NULL,
+    payment_date DATE NOT NULL,
     memo TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users (id)
