@@ -165,9 +165,9 @@ func main() {
 			VALUES ($1, $2, $3, $4);
 		`, userID, sav.Amount, sav.Comment, time.Now())
 		if err != nil {
-			fmt.Printf("✅ Inserted savings table: amount=%.2f\n", sav.Amount)
+			log.Fatalf("failed to insert savings table: %v", err)
 		}
-		fmt.Printf("✅ Inserted savings table")
+		fmt.Printf("✅ Inserted savings table: amount=%.2f\n", sav.Amount)
 	}
 
 	fmt.Println("🎉 Seeder finished successfully!")
