@@ -5,8 +5,8 @@ erDiagram
         VARCHAR name
         VARCHAR email
         VARCHAR password_hash
-        DATETIME created_at
-        DATETIME updated_at
+        TIMESTAMP created_at
+        TIMESTAMP updated_at
     }
 
     %% ===== 収入系 =====
@@ -14,29 +14,29 @@ erDiagram
         BIGINT id PK
         BIGINT user_id FK
         VARCHAR name
-        DECIMAL amount
-        TINYINT pay_day
+        NUMERIC(10,2) amount
+        DATE payment_date
         TEXT memo
-        DATETIME created_at
+        TIMESTAMP created_at
     }
 
     SIDE_INCOMES {
         BIGINT id PK
         BIGINT user_id FK
         VARCHAR source
-        DECIMAL amount
-        CHAR month
-        DATETIME created_at
+        NUMERIC(10,2) amount
+        DATE payment_date
+        TIMESTAMP created_at
     }
 
     INCOME_ADJUSTMENTS {
         BIGINT id PK
         BIGINT user_id FK
         ENUM category
-        DECIMAL amount
+        NUMERIC(10,2) amount
         VARCHAR reason
-        CHAR month
-        DATETIME created_at
+        DATE adjustments_date
+        TIMESTAMP created_at
     }
 
     %% ===== 支出系 =====
@@ -44,30 +44,31 @@ erDiagram
         BIGINT id PK
         BIGINT user_id FK
         VARCHAR name
-        DECIMAL amount
-        TINYINT payment_date
+        NUMERIC(10,2) amount
+        DATE payment_date
         TEXT memo
-        DATETIME created_at
+        TIMESTAMP created_at
     }
-
-    VARIABLE_COSTS {
-        BIGINT id PK
-        BIGINT user_id FK
-        VARCHAR category
-        DECIMAL amount
-        DATE date
-        TEXT memo
-        DATETIME created_at
-    }
-
     %% ===== 目標系 =====
     WANTS {
         BIGINT id PK
         BIGINT user_id FK
         VARCHAR name
-        DECIMAL target_amount
-        DECIMAL monthly_saving
-        DATETIME created_at
+        NUMERIC(10,2) target_amount
+        NUMERIC(10,2) monthly_saving
+        DATE purchased_at
+        BOOLEAN purchased
+        TIMESTAMP created_at
+        TIMESTAMP updated_at
+    }
+
+    %% ===== 貯金 =====
+    SAVINGS {
+        BIGINT id PK
+        BIGINT user_id FK
+        NUMERIC(10,2) amount
+        VARCHAR comment
+        DATE saved_at
     }
 
     %% ===== 関係 =====
@@ -75,9 +76,9 @@ erDiagram
     USERS ||--o{ SIDE_INCOMES : "副業収入"
     USERS ||--o{ INCOME_ADJUSTMENTS : "本業調整額"
     USERS ||--o{ FIXED_COSTS : "固定費"
-    USERS ||--o{ VARIABLE_COSTS : "変動費"
     USERS ||--o{ WANTS : "目標貯金・欲しいもの"
+    USERS ||--o{ SAVINGS : "貯金履歴"
 
     %% ===== 履歴テーブルの補足 =====
     %% HISTORY_FIXED_INCOME, HISTORY_SIDE_INCOME, HISTORY_INCOME_ADJUSTMENTS, HISTORY_VARIABLE_COSTS
-    %% は現行テーブルと同構造で、月次スナップショット用
+    %% は現行テーブルと同構造で
