@@ -14,7 +14,7 @@ erDiagram
         BIGINT id PK
         BIGINT user_id FK
         VARCHAR name
-        NUMERIC(10,2) amount
+        NUMERIC amount
         DATE payment_date
         TEXT memo
         TIMESTAMP created_at
@@ -24,7 +24,7 @@ erDiagram
         BIGINT id PK
         BIGINT user_id FK
         VARCHAR source
-        NUMERIC(10,2) amount
+        NUMERIC amount
         DATE payment_date
         TIMESTAMP created_at
     }
@@ -33,7 +33,7 @@ erDiagram
         BIGINT id PK
         BIGINT user_id FK
         ENUM category
-        NUMERIC(10,2) amount
+        NUMERIC amount
         VARCHAR reason
         DATE adjustments_date
         TIMESTAMP created_at
@@ -44,7 +44,7 @@ erDiagram
         BIGINT id PK
         BIGINT user_id FK
         VARCHAR name
-        NUMERIC(10,2) amount
+        NUMERIC amount
         DATE payment_date
         TEXT memo
         TIMESTAMP created_at
@@ -54,8 +54,8 @@ erDiagram
         BIGINT id PK
         BIGINT user_id FK
         VARCHAR name
-        NUMERIC(10,2) target_amount
-        NUMERIC(10,2) monthly_saving
+        NUMERIC target_amount
+        NUMERIC monthly_saving
         DATE purchased_at
         BOOLEAN purchased
         TIMESTAMP created_at
@@ -66,7 +66,7 @@ erDiagram
     SAVINGS {
         BIGINT id PK
         BIGINT user_id FK
-        NUMERIC(10,2) amount
+        NUMERIC amount
         VARCHAR comment
         DATE saved_at
     }
