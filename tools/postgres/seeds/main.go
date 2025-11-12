@@ -140,9 +140,9 @@ func main() {
 
 	for _, wt := range wants {
 		_, err := db.ExecContext(ctx,
-			`INSERT INTO wants (user_id, name, target_amount, target_date, purchased, purchased_at, created_at, updated_at)
-			VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
-		`, userID, wt.Name, wt.TargetAmount, wt.TargetDate, wt.Purchased, wt.PurchasedAt, time.Now(), time.Now())
+			`INSERT INTO wants (user_id, name, target_amount, target_date, purchased, purchased_at)
+			VALUES ($1, $2, $3, $4, $5, $6);
+		`, userID, wt.Name, wt.TargetAmount, wt.TargetDate, wt.Purchased, wt.PurchasedAt)
 		if err != nil {
 			log.Fatalf("failed to insert wants table: %v", err)
 		}
