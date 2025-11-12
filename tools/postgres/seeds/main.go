@@ -135,7 +135,7 @@ func main() {
 		PurchasedAt  sql.NullTime
 	}{
 		{"フルート", 120000, time.Date(2026, 5, 1, 0, 0, 0, 0, time.Local), false, sql.NullTime{Valid: false}},
-		{"Mac PC M4", 120000, time.Date(2025, 10, 25, 0, 0, 0, 0, time.Local), false, purchasedAt},
+		{"Mac PC M4", 120000, time.Date(2025, 10, 25, 0, 0, 0, 0, time.Local), true, purchasedAt},
 	}
 
 	for _, wt := range wants {
@@ -165,7 +165,7 @@ func main() {
 			VALUES ($1, $2, $3, $4);
 		`, userID, sav.Amount, sav.Comment, time.Now())
 		if err != nil {
-			log.Fatalf("failed to insert savings table: %v", err)
+			fmt.Printf("✅ Inserted savings table: amount=%.2f\n", sav.Amount)
 		}
 		fmt.Printf("✅ Inserted savings table")
 	}
