@@ -163,7 +163,7 @@ func main() {
 		_, err := db.ExecContext(ctx,
 			`INSERT INTO savings (user_id, amount, comment, saved_at)
 			VALUES ($1, $2, $3, $4);
-		`, userID, sav.Amount, sav.Comment, time.Now())
+		`, userID, sav.Amount, sav.Comment, time.Date(2025, 11, 1, 0, 0, 0, 0, time.Local))
 		if err != nil {
 			log.Fatalf("failed to insert savings table: %v", err)
 		}
