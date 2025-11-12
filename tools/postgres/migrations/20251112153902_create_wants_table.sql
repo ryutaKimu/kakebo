@@ -11,6 +11,19 @@ CREATE TABLE wants (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 作成日時
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- 更新日時
 );
+
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+CREATE TRIGGER update_wants_updated_at
+BEFORE UPDATE ON wants
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at_column();
 -- +goose StatementEnd
 
 -- +goose Down
