@@ -121,5 +121,55 @@ func main() {
 		fmt.Printf("✅ Inserted income adjustment: %s\n", adj.Reason)
 	}
 
+	// --- 目標物 ---
+	// 購入済みの場合
+	purchasedAt := sql.NullTime{
+		Time:  time.Date(2025, 10, 24, 0, 0, 0, 0, time.Local),
+		Valid: true,
+	}
+	wants := []struct {
+		Name         string
+		TargetAmount float64
+		TargetDate   time.Time
+		Purchased    bool
+		PurchasedAt  sql.NullTime
+	}{
+		{"フルート", 120000, time.Date(2026, 5, 1, 0, 0, 0, 0, time.Local), false, sql.NullTime{Valid: false}},
+		{"Mac PC M4", 120000, time.Date(2025, 10, 25, 0, 0, 0, 0, time.Local), true, purchasedAt},
+	}
+
+	for _, wt := range wants {
+		_, err := db.ExecContext(ctx,
+			`INSERT INTO wants (user_id, name, target_amount, target_date, purchased, purchased_at)
+			VALUES ($1, $2, $3, $4, $5, $6);
+		`, userID, wt.Name, wt.TargetAmount, wt.TargetDate, wt.Purchased, wt.PurchasedAt)
+		if err != nil {
+			log.Fatalf("failed to insert wants table: %v", err)
+		}
+		fmt.Printf("✅ Inserted wants table: %s\n", wt.Name)
+	}
+
+	// --- 貯金 ---
+
+	savings := []struct {
+		Amount  float64
+		Comment sql.NullString
+		SavedAt time.Time
+	}{
+		{120000, sql.NullString{String: "貯金", Valid: true}, time.Date(2025, 11, 24, 0, 0, 0, 0, time.Local)},
+		{-120000, sql.NullString{String: "PC購入", Valid: true}, time.Date(2025, 11, 24, 0, 0, 0, 0, time.Local)},
+	}
+
+	for _, sav := range savings {
+		_, err := db.ExecContext(ctx,
+			`INSERT INTO savings (user_id, amount, comment, saved_at)
+			VALUES ($1, $2, $3, $4);
+		`, userID, sav.Amount, sav.Comment, sav.SavedAt)
+		if err != nil {
+			log.Fatalf("failed to insert savings table: %v", err)
+		}
+		fmt.Printf("✅ Inserted savings table: amount=%.2f\n", sav.Amount)
+	}
+
 	fmt.Println("🎉 Seeder finished successfully!")
 }

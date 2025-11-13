@@ -1,4 +1,5 @@
 -- +goose Up
+-- +goose StatementBegin
 CREATE TABLE users (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -8,5 +9,9 @@ CREATE TABLE users (
     updated_at TIMESTAMP DEFAULT NOW()
 );
 
+-- +goose StatementEnd
+
 -- +goose Down
+-- +goose StatementBegin
 DROP TABLE users;
+-- +goose StatementEnd

@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"github.com/ryutaKimu/kakebo/internal/repository/top"
@@ -16,12 +17,14 @@ type TopServiceImpl struct {
 func NewTopService(topRepository top.TopRepository) interfaces.TopService {
 	return &TopServiceImpl{repo: topRepository}
 }
-func (s *TopServiceImpl) GetMonthlyPageSummary(ctx context.Context, userId int, now time.Time) (float64, float64, error) {
+func (s *TopServiceImpl) GetMonthlyPageSummary(ctx context.Context, userId int, now time.Time) (float64, float64, float64, float64, error) {
 	var (
 		fixedIncomeAmount float64
 		subIncomeAmount   float64
 		adjustmentAmount  float64
 		totalCost         float64
+		saving            float64
+		want              float64
 	)
 
 	g, ctx := errgroup.WithContext(ctx)
@@ -62,10 +65,33 @@ func (s *TopServiceImpl) GetMonthlyPageSummary(ctx context.Context, userId int, 
 		return nil
 	})
 
+	g.Go(func() error {
+		sv, err := s.repo.GetSumSaving(ctx, userId, now)
+		if err != nil {
+			return err
+		}
+		saving = sv
+		return nil
+	})
+
+	g.Go(func() error {
+		wt, err := s.repo.GetWantAmount(ctx, userId)
+		if err != nil {
+			return err
+		}
+		want = wt
+		return nil
+	})
+
 	if err := g.Wait(); err != nil {
-		return 0, 0, err
+		return 0, 0, 0, 0, err
 	}
 
 	totalIncome := fixedIncomeAmount + subIncomeAmount + adjustmentAmount
-	return totalIncome, totalCost, nil
+	amountDistance := want - saving
+	if amountDistance <= 0 {
+		log.Printf("🎉 目標達成！ 貯金額が目標 %.2f を超えました。", want)
+		return 0, 0, 0, 0, nil
+	}
+	return totalIncome, totalCost, saving, amountDistance, nil
 }

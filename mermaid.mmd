@@ -55,7 +55,7 @@ erDiagram
         BIGINT user_id FK
         VARCHAR name
         NUMERIC target_amount
-        NUMERIC monthly_saving
+        DATE target_date
         DATE purchased_at
         BOOLEAN purchased
         TIMESTAMP created_at
@@ -69,6 +69,8 @@ erDiagram
         NUMERIC amount
         VARCHAR comment
         DATE saved_at
+        TIMESTAMP created_at
+        TIMESTAMP updated_at
     }
 
     %% ===== 関係 =====
