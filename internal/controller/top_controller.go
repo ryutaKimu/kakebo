@@ -26,7 +26,7 @@ func (s *TopController) GetTop(w http.ResponseWriter, r *http.Request) {
 	}
 
 	now := time.Now()
-	totalIncome, totalCost, err := s.service.GetMonthlyPageSummary(r.Context(), userId, now)
+	totalIncome, totalCost, saving, want, err := s.service.GetMonthlyPageSummary(r.Context(), userId, now)
 	if err != nil {
 		log.Printf("[ERROR] failed to get monthly page summary: %v", err)
 		http.Error(w, "failed to get monthly page summary", http.StatusInternalServerError)
@@ -36,9 +36,13 @@ func (s *TopController) GetTop(w http.ResponseWriter, r *http.Request) {
 	response := struct {
 		TotalIncome float64 `json:"total_income"`
 		TotalCost   float64 `json:"total_cost"`
+		Saving      float64 `json:"saving_amount"`
+		Want        float64 `json:"want_amount"`
 	}{
 		TotalIncome: totalIncome,
 		TotalCost:   totalCost,
+		Saving:      saving,
+		Want:        want,
 	}
 
 	w.Header().Set("Content-Type", "application/json")

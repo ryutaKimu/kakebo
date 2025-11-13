@@ -10,4 +10,6 @@ type TopRepository interface {
 	GetSumSubIncome(ctx context.Context, userId int, now time.Time) (float64, error)
 	GetSumIncomeAdjustment(ctx context.Context, userId int, now time.Time) (float64, error)
 	GetSumCost(ctx context.Context, userId int, now time.Time) (float64, error)
+	GetSumSaving(ctx context.Context, userId int, now time.Time) (float64, error)
+	GetWant(ctx context.Context, userId int) (float64, error)
 }

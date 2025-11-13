@@ -41,6 +41,33 @@ func (r *TopRepository) GetSumCost(ctx context.Context, userId int, now time.Tim
 	return r.getSumAmount(ctx, "fixed_costs", "payment_date", userId, now)
 }
 
+func (r *TopRepository) GetSumSaving(ctx context.Context, userId int, now time.Time) (float64, error) {
+	return r.getSumAmount(ctx, "savings", "saved_at", userId, now)
+}
+
+func (r *TopRepository) GetWant(ctx context.Context, userId int) (float64, error) {
+	exec := dbutil.GetDBExecutor(ctx, r.db)
+	query, args, err := r.goqu.
+		From("wants").
+		Select(goqu.C("amount")).
+		Where(goqu.C("user_id").Eq(userId)).
+		Order(goqu.I("created_at").Desc()).
+		Limit(1).
+		ToSQL()
+	if err != nil {
+		return 0, err
+	}
+	var amount float64
+	row := exec.QueryRowContext(ctx, query, args...)
+	if err := row.Scan(&amount); err != nil {
+		if err == sql.ErrNoRows {
+			return 0, err
+		}
+		return 0, fmt.Errorf("failed to scan: %w", err)
+	}
+	return amount, nil
+}
+
 func (r *TopRepository) getSumAmount(ctx context.Context, tableName string, columnName string, userId int, now time.Time) (float64, error) {
 	exec := dbutil.GetDBExecutor(ctx, r.db)
 
