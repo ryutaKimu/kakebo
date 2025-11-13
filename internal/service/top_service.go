@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"github.com/ryutaKimu/kakebo/internal/repository/top"
@@ -87,5 +88,10 @@ func (s *TopServiceImpl) GetMonthlyPageSummary(ctx context.Context, userId int, 
 	}
 
 	totalIncome := fixedIncomeAmount + subIncomeAmount + adjustmentAmount
-	return totalIncome, totalCost, saving, want, nil
+	amountDistance := want - saving
+	if amountDistance <= 0 {
+		log.Printf("🎉 目標達成！ 貯金額が目標 %.2f を超えました。", want)
+		return 0, 0, 0, 0, nil
+	}
+	return totalIncome, totalCost, saving, amountDistance, nil
 }

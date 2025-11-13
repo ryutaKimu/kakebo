@@ -49,7 +49,7 @@ func (r *TopRepository) GetWant(ctx context.Context, userId int) (float64, error
 	exec := dbutil.GetDBExecutor(ctx, r.db)
 	query, args, err := r.goqu.
 		From("wants").
-		Select(goqu.C("amount")).
+		Select(goqu.C("target_amount")).
 		Where(goqu.C("user_id").Eq(userId)).
 		Order(goqu.I("created_at").Desc()).
 		Limit(1).
