@@ -140,7 +140,7 @@ func main() {
 
 	for _, wt := range wants {
 		_, err := db.ExecContext(ctx,
-			`INSERT INTO wants (user_id, name, target_amount, target_date, purchased, purchased_at)
+			`INSERT INTO wants (user_id, name, amount, target_date, purchased, purchased_at)
 			VALUES ($1, $2, $3, $4, $5, $6);
 		`, userID, wt.Name, wt.TargetAmount, wt.TargetDate, wt.Purchased, wt.PurchasedAt)
 		if err != nil {
