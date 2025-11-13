@@ -45,7 +45,7 @@ func (r *TopRepository) GetSumSaving(ctx context.Context, userId int, now time.T
 	return r.getSumAmount(ctx, "savings", "saved_at", userId, now)
 }
 
-func (r *TopRepository) GetWant(ctx context.Context, userId int) (float64, error) {
+func (r *TopRepository) GetWantAmount(ctx context.Context, userId int) (float64, error) {
 	exec := dbutil.GetDBExecutor(ctx, r.db)
 	query, args, err := r.goqu.
 		From("wants").

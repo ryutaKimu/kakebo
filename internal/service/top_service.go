@@ -75,7 +75,7 @@ func (s *TopServiceImpl) GetMonthlyPageSummary(ctx context.Context, userId int, 
 	})
 
 	g.Go(func() error {
-		wt, err := s.repo.GetWant(ctx, userId)
+		wt, err := s.repo.GetWantAmount(ctx, userId)
 		if err != nil {
 			return err
 		}
