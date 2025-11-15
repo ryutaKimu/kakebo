@@ -5,19 +5,39 @@ import (
 	"log"
 	"time"
 
-	"github.com/ryutaKimu/kakebo/internal/repository/top"
+	"github.com/ryutaKimu/kakebo/internal/infra/postgre/cost"
+	"github.com/ryutaKimu/kakebo/internal/infra/postgre/income"
+	"github.com/ryutaKimu/kakebo/internal/infra/postgre/saving"
+	"github.com/ryutaKimu/kakebo/internal/infra/postgre/want"
 	"github.com/ryutaKimu/kakebo/internal/service/interfaces"
 	"golang.org/x/sync/errgroup"
 )
 
 type TopServiceImpl struct {
-	repo top.TopRepository
+	IncomeRepo income.IncomeRepository
+	CostRepo   cost.CostRepository
+	SavingRepo saving.SavingRepository
+	WantRepo   want.WantRepository
 }
 
-func NewTopService(topRepository top.TopRepository) interfaces.TopService {
-	return &TopServiceImpl{repo: topRepository}
+func NewTopService(
+	incomeRepo income.IncomeRepository,
+	costRepo cost.CostRepository,
+	savingRepo saving.SavingRepository,
+	wantRepo want.WantRepository,
+) interfaces.TopService {
+	return &TopServiceImpl{
+		IncomeRepo: incomeRepo,
+		CostRepo:   costRepo,
+		SavingRepo: savingRepo,
+		WantRepo:   wantRepo,
+	}
 }
-func (s *TopServiceImpl) GetMonthlyPageSummary(ctx context.Context, userId int, now time.Time) (float64, float64, float64, float64, error) {
+
+func (s *TopServiceImpl) GetMonthlyPageSummary(
+	ctx context.Context, userID int, now time.Time,
+) (float64, float64, float64, float64, error) {
+
 	var (
 		fixedIncomeAmount float64
 		subIncomeAmount   float64
@@ -30,56 +50,56 @@ func (s *TopServiceImpl) GetMonthlyPageSummary(ctx context.Context, userId int, 
 	g, ctx := errgroup.WithContext(ctx)
 
 	g.Go(func() error {
-		fi, err := s.repo.GetSumFixedIncome(ctx, userId, now)
+		amount, err := s.IncomeRepo.GetSumFixedIncome(ctx, userID, now)
 		if err != nil {
 			return err
 		}
-		fixedIncomeAmount = fi
+		fixedIncomeAmount = amount
 		return nil
 	})
 
 	g.Go(func() error {
-		si, err := s.repo.GetSumSubIncome(ctx, userId, now)
+		amount, err := s.IncomeRepo.GetSumSubIncome(ctx, userID, now)
 		if err != nil {
 			return err
 		}
-		subIncomeAmount = si
+		subIncomeAmount = amount
 		return nil
 	})
 
 	g.Go(func() error {
-		adj, err := s.repo.GetSumIncomeAdjustment(ctx, userId, now)
+		amount, err := s.IncomeRepo.GetSumIncomeAdjustment(ctx, userID, now)
 		if err != nil {
 			return err
 		}
-		adjustmentAmount = adj
+		adjustmentAmount = amount
 		return nil
 	})
 
 	g.Go(func() error {
-		cost, err := s.repo.GetSumCost(ctx, userId, now)
+		amount, err := s.CostRepo.GetSumCost(ctx, userID, now)
 		if err != nil {
 			return err
 		}
-		totalCost = cost
+		totalCost = amount
 		return nil
 	})
 
 	g.Go(func() error {
-		sv, err := s.repo.GetSumSaving(ctx, userId, now)
+		amount, err := s.SavingRepo.GetSumSaving(ctx, userID, now)
 		if err != nil {
 			return err
 		}
-		saving = sv
+		saving = amount
 		return nil
 	})
 
 	g.Go(func() error {
-		wt, err := s.repo.GetWantAmount(ctx, userId)
+		amount, err := s.WantRepo.GetWantAmount(ctx, userID)
 		if err != nil {
 			return err
 		}
-		want = wt
+		want = amount
 		return nil
 	})
 
@@ -91,7 +111,8 @@ func (s *TopServiceImpl) GetMonthlyPageSummary(ctx context.Context, userId int, 
 	amountDistance := want - saving
 	if amountDistance <= 0 {
 		log.Printf("🎉 目標達成！ 貯金額が目標 %.2f を超えました。", want)
-		return 0, 0, 0, 0, nil
+		return totalIncome, totalCost, saving, 0, nil
 	}
+
 	return totalIncome, totalCost, saving, amountDistance, nil
 }
