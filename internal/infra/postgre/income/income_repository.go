@@ -28,7 +28,3 @@ func (r *IncomeRepository) GetSumFixedIncome(ctx context.Context, userId int, no
 func (r *IncomeRepository) GetSumSubIncome(ctx context.Context, userId int, now time.Time) (float64, error) {
 	return r.GetMonthlySum(ctx, "sub_incomes", "payment_date", userId, now)
 }
-
-func (r *IncomeRepository) GetSumIncomeAdjustment(ctx context.Context, userId int, now time.Time) (float64, error) {
-	return r.GetMonthlySum(ctx, "income_adjustments", "adjustment_date", userId, now)
-}

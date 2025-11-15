@@ -8,6 +8,7 @@ import (
 
 	"github.com/ryutaKimu/kakebo/internal/controller"
 	postgres "github.com/ryutaKimu/kakebo/internal/infra/postgre"
+	"github.com/ryutaKimu/kakebo/internal/infra/postgre/adjustment"
 	"github.com/ryutaKimu/kakebo/internal/infra/postgre/cost"
 	"github.com/ryutaKimu/kakebo/internal/infra/postgre/income"
 	"github.com/ryutaKimu/kakebo/internal/infra/postgre/saving"
@@ -40,10 +41,11 @@ func NewApp() (*App, error) {
 
 	incomeRepo := income.NewIncomeRepository(pg.DB)
 	costRepo := cost.NewCostRepository(pg.DB)
+	adjustmentRepo := adjustment.NewAdjustmentRepository(pg.DB)
 	savingRepo := saving.NewSavingRepository(pg.DB)
 	wantRepo := want.NewWantRepository(pg.DB)
 
-	topService := service.NewTopService(*incomeRepo, *costRepo, *savingRepo, *wantRepo)
+	topService := service.NewTopService(incomeRepo, costRepo, adjustmentRepo, savingRepo, wantRepo)
 	topController := controller.NewTopController(topService)
 
 	r := router.NewRouter(userController, topController)

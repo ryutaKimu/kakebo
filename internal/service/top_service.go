@@ -5,32 +5,36 @@ import (
 	"log"
 	"time"
 
-	"github.com/ryutaKimu/kakebo/internal/infra/postgre/cost"
-	"github.com/ryutaKimu/kakebo/internal/infra/postgre/income"
-	"github.com/ryutaKimu/kakebo/internal/infra/postgre/saving"
-	"github.com/ryutaKimu/kakebo/internal/infra/postgre/want"
+	"github.com/ryutaKimu/kakebo/internal/repository/adjustment"
+	"github.com/ryutaKimu/kakebo/internal/repository/cost"
+	"github.com/ryutaKimu/kakebo/internal/repository/income"
+	"github.com/ryutaKimu/kakebo/internal/repository/saving"
+	"github.com/ryutaKimu/kakebo/internal/repository/want"
 	"github.com/ryutaKimu/kakebo/internal/service/interfaces"
 	"golang.org/x/sync/errgroup"
 )
 
 type TopServiceImpl struct {
-	IncomeRepo income.IncomeRepository
-	CostRepo   cost.CostRepository
-	SavingRepo saving.SavingRepository
-	WantRepo   want.WantRepository
+	IncomeRepo     income.IncomeRepository
+	CostRepo       cost.CostRepository
+	AdjustmentRepo adjustment.AdjustmentRepository
+	SavingRepo     saving.SavingRepository
+	WantRepo       want.WantRepository
 }
 
 func NewTopService(
 	incomeRepo income.IncomeRepository,
 	costRepo cost.CostRepository,
+	adjustmentRepo adjustment.AdjustmentRepository,
 	savingRepo saving.SavingRepository,
 	wantRepo want.WantRepository,
 ) interfaces.TopService {
 	return &TopServiceImpl{
-		IncomeRepo: incomeRepo,
-		CostRepo:   costRepo,
-		SavingRepo: savingRepo,
-		WantRepo:   wantRepo,
+		IncomeRepo:     incomeRepo,
+		CostRepo:       costRepo,
+		AdjustmentRepo: adjustmentRepo,
+		SavingRepo:     savingRepo,
+		WantRepo:       wantRepo,
 	}
 }
 
@@ -68,7 +72,7 @@ func (s *TopServiceImpl) GetMonthlyPageSummary(
 	})
 
 	g.Go(func() error {
-		amount, err := s.IncomeRepo.GetSumIncomeAdjustment(ctx, userID, now)
+		amount, err := s.AdjustmentRepo.GetSumIncomeAdjustment(ctx, userID, now)
 		if err != nil {
 			return err
 		}

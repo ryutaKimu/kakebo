@@ -39,7 +39,7 @@ func (r *WantRepository) GetWantAmount(ctx context.Context, userId int) (float64
 	row := exec.QueryRowContext(ctx, query, args...)
 	if err := row.Scan(&amount); err != nil {
 		if err == sql.ErrNoRows {
-			return 0, err
+			return 0, nil
 		}
 		return 0, fmt.Errorf("failed to scan: %w", err)
 	}
