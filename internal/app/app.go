@@ -8,8 +8,12 @@ import (
 
 	"github.com/ryutaKimu/kakebo/internal/controller"
 	postgres "github.com/ryutaKimu/kakebo/internal/infra/postgre"
-	"github.com/ryutaKimu/kakebo/internal/infra/postgre/top"
+	"github.com/ryutaKimu/kakebo/internal/infra/postgre/adjustment"
+	"github.com/ryutaKimu/kakebo/internal/infra/postgre/cost"
+	"github.com/ryutaKimu/kakebo/internal/infra/postgre/income"
+	"github.com/ryutaKimu/kakebo/internal/infra/postgre/saving"
 	userRepoPkg "github.com/ryutaKimu/kakebo/internal/infra/postgre/user"
+	"github.com/ryutaKimu/kakebo/internal/infra/postgre/want"
 	"github.com/ryutaKimu/kakebo/internal/router"
 	"github.com/ryutaKimu/kakebo/internal/service"
 	userServicePkg "github.com/ryutaKimu/kakebo/internal/service/user"
@@ -35,8 +39,13 @@ func NewApp() (*App, error) {
 	}
 	userController := controller.NewUserController(userService)
 
-	topRepo := top.NewTopRepository(pg.DB)
-	topService := service.NewTopService(topRepo)
+	incomeRepo := income.NewIncomeRepository(pg.DB)
+	costRepo := cost.NewCostRepository(pg.DB)
+	adjustmentRepo := adjustment.NewAdjustmentRepository(pg.DB)
+	savingRepo := saving.NewSavingRepository(pg.DB)
+	wantRepo := want.NewWantRepository(pg.DB)
+
+	topService := service.NewTopService(incomeRepo, costRepo, adjustmentRepo, savingRepo, wantRepo)
 	topController := controller.NewTopController(topService)
 
 	r := router.NewRouter(userController, topController)
