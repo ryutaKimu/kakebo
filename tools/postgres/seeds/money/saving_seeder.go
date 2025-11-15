@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 	"time"
 )
 
@@ -24,7 +23,7 @@ func SavingSeeder(ctx context.Context, db *sql.DB, userID int64) error {
 			VALUES ($1, $2, $3, $4);
 		`, userID, sav.Amount, sav.Comment, sav.SavedAt)
 		if err != nil {
-			log.Fatalf("failed to insert savings table: %v", err)
+			return fmt.Errorf("failed to insert savings table: %w", err)
 		}
 		fmt.Printf("✅ Inserted savings table: amount=%.2f\n", sav.Amount)
 	}

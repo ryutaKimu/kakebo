@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 	"time"
 )
 
@@ -26,7 +25,7 @@ func IncomeAdjustmentsSeeder(ctx context.Context, db *sql.DB, userID int64) erro
 			VALUES ($1, $2, $3, $4, $5, $6);
 		`, userID, adj.Category, adj.Amount, adj.Reason, adj.AdjustmentDate, time.Now())
 		if err != nil {
-			log.Fatalf("failed to insert income adjustment (%s): %v", adj.Reason, err)
+			return fmt.Errorf("failed to insert income adjustment (%s): %w", adj.Reason, err)
 		}
 		fmt.Printf("✅ Inserted income adjustment: %s\n", adj.Reason)
 	}

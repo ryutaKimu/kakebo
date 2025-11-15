@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 	"time"
 )
 
@@ -15,13 +14,8 @@ func FixedIncomeSeeder(ctx context.Context, db *sql.DB, userID int64) error {
 		VALUES ($1, $2, $3, $4, $5, $6);
 	`, userID, "本業給与", 300000, time.Date(2025, 11, 25, 0, 0, 0, 0, time.Local), "毎月の給与", time.Now())
 	if err != nil {
-		log.Fatalf("failed to insert fixed income: %v", err)
+		return fmt.Errorf("failed to insert fixed income: %w", err)
 	}
 	fmt.Println("✅ Inserted fixed income")
-	if err != nil {
-		return fmt.Errorf("failed to upsert fixed income: %w", err)
-	}
-
-	fmt.Println("✅ Upserted fixed income")
 	return nil
 }

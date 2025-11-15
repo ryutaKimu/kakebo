@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 	"time"
 )
 
@@ -27,7 +26,7 @@ func FixedCostsSeeder(ctx context.Context, db *sql.DB, userID int64) error {
 			VALUES ($1, $2, $3, $4, $5, $6);
 		`, userID, c.Name, c.Amount, c.PaymentDate, c.Memo, time.Now())
 		if err != nil {
-			log.Fatalf("failed to insert fixed cost (%s): %v", c.Name, err)
+			return fmt.Errorf("failed to insert fixed cost (%s): %v", c.Name, err)
 		}
 		fmt.Printf("✅ Inserted fixed cost: %s\n", c.Name)
 	}
