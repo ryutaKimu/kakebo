@@ -1,5 +1,0 @@
-.data/
-.env
-tmp/
-logs/
-internal/pkg/jwt/cert/*.pem

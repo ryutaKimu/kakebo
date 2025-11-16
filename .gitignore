@@ -1,0 +1,25 @@
+# 環境変数
+.env
+
+# Docker / 一時ファイル
+tmp/
+logs/
+.data/
+
+# Go バイナリ / ビルド生成物
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# IDE / エディタ固有
+.vscode/
+.idea/
+*.swp
+*.DS_Store
+
+# 認証関連 / 秘密鍵
+/api/internal/pkg/jwt/cert/*.pem
