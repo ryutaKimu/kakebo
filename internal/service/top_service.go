@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/ryutaKimu/kakebo/internal/model"
 	"github.com/ryutaKimu/kakebo/internal/repository/adjustment"
 	"github.com/ryutaKimu/kakebo/internal/repository/cost"
 	"github.com/ryutaKimu/kakebo/internal/repository/income"
@@ -119,4 +120,12 @@ func (s *TopServiceImpl) GetMonthlyPageSummary(
 	}
 
 	return totalIncome, totalCost, saving, amountDistance, nil
+}
+
+func (s *TopServiceImpl) GetLatestWant(ctx context.Context, userId int) (*model.Want, error) {
+	want, err := s.WantRepo.FetchLatestWant(ctx, userId)
+	if err != nil {
+		return nil, err
+	}
+	return want, nil
 }

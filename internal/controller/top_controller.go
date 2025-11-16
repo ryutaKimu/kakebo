@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/ryutaKimu/kakebo/internal/common"
+	"github.com/ryutaKimu/kakebo/internal/model"
 	"github.com/ryutaKimu/kakebo/internal/service/interfaces"
 )
 
@@ -33,16 +34,26 @@ func (s *TopController) GetTop(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	want, err := s.service.GetLatestWant(r.Context(), userId)
+
+	if err != nil {
+		log.Printf("[ERROR] failed to get Want model: %v", err)
+		http.Error(w, "failed to get monthly page summary", http.StatusInternalServerError)
+		return
+	}
+
 	response := struct {
-		TotalIncome    float64 `json:"total_income"`
-		TotalCost      float64 `json:"total_cost"`
-		Saving         float64 `json:"saving_amount"`
-		AmountDistance float64 `json:"amount_distance"`
+		TotalIncome    float64     `json:"total_income"`
+		TotalCost      float64     `json:"total_cost"`
+		Saving         float64     `json:"saving_amount"`
+		AmountDistance float64     `json:"amount_distance"`
+		LatestWant     *model.Want `json:"latest_want"`
 	}{
 		TotalIncome:    totalIncome,
 		TotalCost:      totalCost,
 		Saving:         saving,
 		AmountDistance: amountDistance,
+		LatestWant:     want,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
