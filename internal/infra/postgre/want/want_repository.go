@@ -73,17 +73,17 @@ func (r *WantRepository) FetchLatestWant(ctx context.Context, userId int) (*mode
 		return nil, err
 	}
 
-	var Want model.Want
+	var want model.Want
 	row := exec.QueryRowContext(ctx, query, args...)
 	err = row.Scan(
-		&Want.ID,
-		&Want.UserId,
-		&Want.Name,
-		&Want.TargetAmount,
-		&Want.TargetDate,
-		&Want.Purchased,
-		&Want.PurchasedAt,
-		&Want.CreatedAt,
+		&want.ID,
+		&want.UserId,
+		&want.Name,
+		&want.TargetAmount,
+		&want.TargetDate,
+		&want.Purchased,
+		&want.PurchasedAt,
+		&want.CreatedAt,
 	)
 
 	if err != nil {
@@ -93,6 +93,6 @@ func (r *WantRepository) FetchLatestWant(ctx context.Context, userId int) (*mode
 		return nil, err
 	}
 
-	return &Want, nil
+	return &want, nil
 
 }

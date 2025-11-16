@@ -38,7 +38,7 @@ func (s *TopController) GetTop(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		log.Printf("[ERROR] failed to get Want model: %v", err)
-		http.Error(w, "failed to get monthly page summary", http.StatusInternalServerError)
+		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
 
