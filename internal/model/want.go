@@ -11,7 +11,7 @@ type Want struct {
 	Name         string       `db:"name" json:"name"`
 	TargetAmount float64      `db:"target_amount" json:"target_amount"`
 	TargetDate   time.Time    `db:"target_date" json:"target_date"`
-	Purchased    bool         `db:"puchased" json:"purchased"`
+	Purchased    bool         `db:"purchased" json:"purchased"`
 	PurchasedAt  sql.NullTime `db:"purchased_at" json:"purchased_at"`
 	CreatedAt    time.Time    `db:"created_at" json:"created_at"`
 }
