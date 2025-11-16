@@ -123,9 +123,5 @@ func (s *TopServiceImpl) GetMonthlyPageSummary(
 }
 
 func (s *TopServiceImpl) GetLatestWant(ctx context.Context, userId int) (*model.Want, error) {
-	want, err := s.WantRepo.FetchLatestWant(ctx, userId)
-	if err != nil {
-		return nil, err
-	}
-	return want, nil
+	return s.WantRepo.FetchLatestWant(ctx, userId)
 }
