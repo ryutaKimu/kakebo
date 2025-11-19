@@ -1,29 +1,42 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Mail, Lock } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { useState } from "react";
+import { Mail, Lock } from "lucide-react";
+import { Link } from "react-router-dom";
+import { login } from "../api/kakebo";
 
 export function LoginForm() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    // ここで実際のログイン処理を行います
-    setTimeout(() => {
-      setIsLoading(false)
-      // ダッシュボードへリダイレクト
-    }, 1000)
-  }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      // ここで実際のログイン処理を行います
+      console.log(email);
+
+      const data = await login(email, password);
+
+      if (data.token) {
+        localStorage.SetItem("access_token", data.token);
+      }
+    } catch (err) {
+      console.error("ログイン失敗:", err);
+      alert("ログインに失敗しました");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-foreground">ログイン</h2>
-        <p className="text-muted-foreground mt-1">アカウントにログインしてください</p>
+        <p className="text-muted-foreground mt-1">
+          アカウントにログインしてください
+        </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -69,19 +82,22 @@ export function LoginForm() {
           disabled={isLoading}
           className="w-full py-2 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50"
         >
-          {isLoading ? 'ログイン中...' : 'ログイン'}
+          {isLoading ? "ログイン中..." : "ログイン"}
         </button>
       </form>
 
       {/* 登録リンク */}
       <div className="text-center text-sm">
         <p className="text-muted-foreground">
-          アカウントをお持ちでないですか？{' '}
-          <Link to="/signup" className="text-primary font-semibold hover:underline">
+          アカウントをお持ちでないですか？{" "}
+          <Link
+            to="/signup"
+            className="text-primary font-semibold hover:underline"
+          >
             新規登録
           </Link>
         </p>
       </div>
     </div>
-  )
+  );
 }
