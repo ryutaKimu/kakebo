@@ -14,8 +14,14 @@
 ### バックエンド
 [![My Skills](https://skillicons.dev/icons?i=go)](https://skillicons.dev)
 
+### フロントエンド
+[![My Skills](https://skillicons.dev/icons?i=ts)](https://skillicons.dev)
+[![My Skills](https://skillicons.dev/icons?i=react)](https://skillicons.dev)
+[![My Skills](https://skillicons.dev/icons?i=tailwindcss)](https://skillicons.dev)
+
 ### インフラ・その他
-[![My Skills](https://skillicons.dev/icons?i=docker,git,github,postgres)](https://skillicons.dev)
+[![My Skills](https://skillicons.dev/icons?i=docker,git,github,postgres,node)](https://skillicons.dev)
+
 
 ## 主な機能
 
