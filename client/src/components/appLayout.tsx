@@ -1,5 +1,5 @@
-import { AppHeader } from './appHeader'
-import { AppSidebar } from './appSideBar'
+import { AppHeader } from "@/appHeader";
+import { AppSidebar } from "@/appSideBar";
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -7,10 +7,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       <AppSidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <AppHeader />
-        <main className="flex-1 overflow-y-auto">
-          {children}
-        </main>
+        <main className="flex-1 overflow-y-auto">{children}</main>
       </div>
     </div>
-  )
+  );
 }

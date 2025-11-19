@@ -9,6 +9,7 @@ import (
 
 func NewRouter(userController *controller.UserController, topController *controller.TopController) *chi.Mux {
 	r := chi.NewRouter()
+	r.Use(middleware.CORSMiddleware)
 
 	r.Post("/signup", userController.CreateUser)
 	r.Post("/login", userController.Login)
@@ -18,6 +19,5 @@ func NewRouter(userController *controller.UserController, topController *control
 		r.Get("/profile", userController.GetProfile)
 		r.Get("/top", topController.GetTop)
 	})
-
 	return r
 }
