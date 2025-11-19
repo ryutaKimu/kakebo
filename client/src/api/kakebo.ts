@@ -9,3 +9,12 @@ export const login = async (email: string, password: string) => {
 
   return token;
 };
+
+export const fetchUserFinancialData = async (token: string) => {
+  const response = await apiClient.get("/user/top", {
+    headers: {
+      Authorization: `Bearer ${token} `,
+    },
+  });
+  return response.data;
+};

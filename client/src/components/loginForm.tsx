@@ -9,19 +9,16 @@ export function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+
     try {
-      // ここで実際のログイン処理を行います
-      console.log(email);
-
       const data = await login(email, password);
-
-      if (data.token) {
-        localStorage.SetItem("access_token", data.token);
+      if (data?.token) {
+        localStorage.setItem("access_token", data.token);
       }
+      window.location.href = "dashboard"
     } catch (err) {
       console.error("ログイン失敗:", err);
       alert("ログインに失敗しました");
