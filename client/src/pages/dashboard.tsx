@@ -8,6 +8,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { fetchUserFinancialData } from '@/api/kakebo'
 import axios from 'axios'
+import { API_ERROR } from '@/frontUtils/constants'
 export default function DashboardPage() {
     const navigate = useNavigate()
     const [totalIncome, setTotalIncome] = useState<number>(0)
@@ -30,7 +31,7 @@ export default function DashboardPage() {
                     navigate("/login")
                     return
                 }
-                setError("データの取得に失敗しました。時間をおいて再度お試しください。")
+                setError(API_ERROR.FETCH_DATA)
             } finally {
                 setIsLoading(false)
             }

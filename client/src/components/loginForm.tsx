@@ -5,6 +5,8 @@ import { Mail, Lock } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { login } from "@/api/kakebo";
 import { ToastError } from "@/components/toastNotification";
+import { handleApiError } from "@/frontUtils/handleApiError";
+import { API_ERROR, VALIDATION } from "@/frontUtils/constants";
 
 export function LoginForm() {
   const navigate = useNavigate();
@@ -16,13 +18,23 @@ export function LoginForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) {
+      setErrorMessage(VALIDATION.EMPTY_EMAIL);
+      return;
+    }
+
+    const trimmedPassword = password.trim();
+    if (!trimmedPassword) {
+      setErrorMessage(VALIDATION.EMPTY_PASSWORD);
+      return;
+    }
+    setIsLoading(true)
     try {
-      await login(email, password);
+      await login(trimmedEmail, trimmedPassword);
       navigate("/dashboard");
     } catch (err) {
-      console.error("ログインエラー:", err);
-      setErrorMessage("ログインに失敗しました。メールアドレスとパスワードを確認してください。");
+      handleApiError(err, API_ERROR.LOGIN, setErrorMessage);
     } finally {
       setIsLoading(false);
     }
