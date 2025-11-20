@@ -11,3 +11,16 @@ export const fetchUserFinancialData = async () => {
   const response = await apiClient.get("/user/top");
   return response.data;
 };
+
+export const createAccount = async (
+  name: string,
+  email: string,
+  password: string
+) => {
+  const response = await apiClient.post("/signup", {
+    name,
+    email,
+    password,
+  });
+  return response.data;
+};
