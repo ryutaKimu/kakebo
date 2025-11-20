@@ -6,12 +6,15 @@ export const handleApiError = (
     setErrorMessage: (msg: string) => void
 ) => {
     if (axios.isAxiosError(err)) {
-        const message =
-            err.response?.data?.message ||
-            err.response?.data ||
-            defaultMessage;
+        const data = err.response?.data;
+        const apiMessage = typeof data === 'string' ? data : data?.message;
 
-        setErrorMessage(String(message));
+        if (typeof apiMessage === 'string' && apiMessage) {
+            setErrorMessage(apiMessage);
+        } else {
+            console.error("API error with unhandled format:", err);
+            setErrorMessage(defaultMessage);
+        }
     } else {
         console.error(defaultMessage, err);
         setErrorMessage(defaultMessage);

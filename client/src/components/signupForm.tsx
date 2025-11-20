@@ -17,8 +17,8 @@ export function SignupForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setIsLoading(true)
     try {
-      setIsLoading(true)
       await createAccount(name, email, password)
       navigate('/dashboard')
     } catch (err) {
