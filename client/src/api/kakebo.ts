@@ -1,13 +1,10 @@
 import { apiClient } from "./index";
 export const login = async (email: string, password: string) => {
-  const response = await apiClient.post("/login", {
+  const response = await apiClient.post<{ token: string }>("/login", {
     email,
     password,
   });
-  const token = response.data.token;
-  localStorage.setItem("access_token", token);
-
-  return token;
+  return response.data;
 };
 
 export const fetchUserFinancialData = async (token: string) => {
