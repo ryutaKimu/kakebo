@@ -14,7 +14,7 @@ export function ProgressBar({ title, current, target, percentage }: ProgressBarP
             </div>
             <div className="bg-muted rounded-full h-3 mb-3 overflow-hidden">
                 <div
-                    className="h-full bg-gradient-to-r from-primary to-primary/80 transition-all duration-300"
+                    className="h-full bg-liner-to-r from-primary to-primary/80 transition-all duration-300"
                     style={{ width: `${percentage}%` }}
                 />
             </div>

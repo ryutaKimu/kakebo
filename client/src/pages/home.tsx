@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 export default function Home() {
   return (
     <>
-      <main className="min-h-screen bg-gradient-to-b from-background to-secondary">
+      <main className="min-h-screen bg-liner-to-b from-background to-secondary">
         {/* ナビゲーションバー */}
         <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-sm border-b border-border">
           <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -87,7 +87,7 @@ export default function Home() {
         </section>
 
         {/* CTA セクション */}
-        <section className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground py-20">
+        <section className="bg-liner-to-r from-primary to-primary/80 text-primary-foreground py-20">
           <div className="max-w-4xl mx-auto px-6 text-center">
             <h2 className="text-4xl font-bold mb-6 text-balance">
               今すぐ、あなたの家計を見える化
