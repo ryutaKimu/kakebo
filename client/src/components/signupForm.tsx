@@ -36,7 +36,7 @@ export function SignupForm() {
       return;
     }
 
-    if (password.length < VALIDATION.PASSWORD_MIN_LENGTH) {
+    if (trimmedPassword.length < VALIDATION.PASSWORD_MIN_LENGTH) {
       setErrorMessage(VALIDATION.SHORT_PASSWORD(VALIDATION.PASSWORD_MIN_LENGTH));
       return;
     }
