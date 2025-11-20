@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { createAccount } from '@/api/kakebo'
 import { ToastError } from './toastNotification'
 import { handleApiError } from '@/frontUtils/handleApiError'
+import { PASSWORD_MIN_LENGTH } from '@/frontUtils/constants'
 
 export function SignupForm() {
   const navigate = useNavigate()
@@ -17,6 +18,10 @@ export function SignupForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (password.length < PASSWORD_MIN_LENGTH) {
+      setErrorMessage("パスワードは8文字以上で入力してください。");
+      return;
+    }
     setIsLoading(true)
     try {
       await createAccount(name, email, password)

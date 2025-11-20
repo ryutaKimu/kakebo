@@ -13,6 +13,7 @@ export const handleApiError = (
             const apiMessage = typeof data === 'string' ? data : data?.message;
 
             if (typeof apiMessage === 'string' && apiMessage) {
+                console.error("API error:", err);
                 setErrorMessage(apiMessage);
                 return;
             }
