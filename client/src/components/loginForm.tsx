@@ -18,8 +18,6 @@ export function LoginForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-
     if (!email.trim()) {
       setErrorMessage(VALIDATION.EMPTY_EMAIL);
       return;
@@ -29,7 +27,7 @@ export function LoginForm() {
       setErrorMessage(VALIDATION.EMPTY_PASSWORD);
       return;
     }
-
+    setIsLoading(true)
     try {
       await login(email, password);
       navigate("/dashboard");
