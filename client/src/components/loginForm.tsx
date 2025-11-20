@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import { Mail, Lock } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { login } from "@/api/kakebo";
 import { ToastError } from "@/components/toastNotification";
 
 export function LoginForm() {
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -16,12 +18,8 @@ export function LoginForm() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const data = await login(email, password);
-      const ACCESS_TOKEN_KEY = 'access_token';
-      if (data?.token) {
-        localStorage.setItem(ACCESS_TOKEN_KEY, data.token);
-      }
-      window.location.href = "dashboard"
+      await login(email, password);
+      navigate("/dashboard");
     } catch (err) {
       console.error("ログインエラー:", err);
       setErrorMessage("ログインに失敗しました。メールアドレスとパスワードを確認してください。");

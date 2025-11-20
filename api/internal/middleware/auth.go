@@ -4,7 +4,6 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/ryutaKimu/kakebo/api/internal/common"
 	"github.com/ryutaKimu/kakebo/api/internal/pkg/jwt"
@@ -16,13 +15,13 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			w.WriteHeader(http.StatusOK)
 			return
 		}
-		token := r.Header.Get("Authorization")
-		token = strings.TrimPrefix(token, "Bearer ")
-		token = strings.TrimSpace(token)
-		if token == "" {
+
+		cookie, err := r.Cookie("access_token")
+		if err != nil || cookie.Value == "" {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
+		token := cookie.Value
 
 		claims, err := jwt.NewJWT().VerifyToken(token)
 		if err != nil {

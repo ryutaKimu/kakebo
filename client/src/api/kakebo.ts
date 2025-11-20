@@ -7,11 +7,9 @@ export const login = async (email: string, password: string) => {
   return response.data;
 };
 
-export const fetchUserFinancialData = async (token: string) => {
+export const fetchUserFinancialData = async () => {
   const response = await apiClient.get("/user/top", {
-    headers: {
-      Authorization: `Bearer ${token} `,
-    },
+    withCredentials: true,
   });
   return response.data;
 };

@@ -4,10 +4,11 @@ import { SummaryCard } from '@/components/summaryCard'
 import { ProgressBar } from '@/components/progressBar'
 import { TrendingUp, TrendingDown, PiggyBank } from 'lucide-react'
 import { RecentTransactions } from '@/components/recentTransactions'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { fetchUserFinancialData } from '@/api/kakebo'
 export default function DashboardPage() {
+    const navigate = useNavigate()
     const [totalIncome, setTotalIncome] = useState<number>(0)
     const [totalExpense, setTotalExpense] = useState<number>(0)
     const savingsGoal = { current: 245000, target: 500000 }
@@ -17,17 +18,19 @@ export default function DashboardPage() {
         const fetchData = async () => {
             try {
                 const token = localStorage.getItem("access_token")
-                if (!token) throw new Error("トークンがありません")
-                const data = await fetchUserFinancialData(token)
+                if (!token) {
+                    navigate("/login")
+                    return
+                }
+                const data = await fetchUserFinancialData()
                 setTotalIncome(data.total_income)
                 setTotalExpense(data.total_cost)
-                console.log(data)
             } catch (err) {
                 console.error("データ取得失敗:", err)
             }
         }
         fetchData()
-    }, [])
+    }, [navigate])
     const recentTransactions = [
         { id: '1', description: '給料', category: '給与', amount: 150000, type: 'income' as const, date: '2025-11-15' },
         { id: '2', description: 'スーパー', category: '食費', amount: 5200, type: 'expense' as const, date: '2025-11-14' },

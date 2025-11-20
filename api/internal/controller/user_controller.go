@@ -70,13 +70,19 @@ func (c *UserController) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var response struct {
-		Token string `json:"token"`
-	}
-	response.Token = signed
+	http.SetCookie(w, &http.Cookie{
+		Name:     "access_token",
+		Value:    signed,
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   false,
+		SameSite: http.SameSiteLaxMode,
+	})
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "login success",
+	})
 }
 
 func (c *UserController) GetProfile(w http.ResponseWriter, r *http.Request) {
