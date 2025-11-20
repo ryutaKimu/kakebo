@@ -13,24 +13,25 @@ export function SignupForm() {
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
-
-
-
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setErrorMessage("")
 
-    if (!name.trim()) {
+    const trimmedName = name.trim();
+    if (!trimmedName) {
       setErrorMessage(VALIDATION.EMPTY_NAME);
       return;
     }
 
-    if (!email.trim()) {
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) {
       setErrorMessage(VALIDATION.EMPTY_EMAIL);
       return;
     }
 
-    if (!password) {
+    const trimmedPassword = password.trim();
+    if (!trimmedPassword) {
       setErrorMessage(VALIDATION.EMPTY_PASSWORD);
       return;
     }
@@ -41,7 +42,7 @@ export function SignupForm() {
     }
     setIsLoading(true)
     try {
-      await createAccount(name, email, password)
+      await createAccount(trimmedName, trimmedEmail, trimmedPassword)
       navigate('/dashboard')
     } catch (err) {
       handleApiError(err, API_ERROR.SIGNUP, setErrorMessage);

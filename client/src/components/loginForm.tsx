@@ -18,18 +18,20 @@ export function LoginForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim()) {
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) {
       setErrorMessage(VALIDATION.EMPTY_EMAIL);
       return;
     }
 
-    if (!password) {
+    const trimmedPassword = password.trim();
+    if (!trimmedPassword) {
       setErrorMessage(VALIDATION.EMPTY_PASSWORD);
       return;
     }
     setIsLoading(true)
     try {
-      await login(email, password);
+      await login(trimmedEmail, trimmedPassword);
       navigate("/dashboard");
     } catch (err) {
       handleApiError(err, API_ERROR.LOGIN, setErrorMessage);
