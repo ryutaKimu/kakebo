@@ -5,6 +5,7 @@ import { Mail, Lock } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { login } from "@/api/kakebo";
 import { ToastError } from "@/components/toastNotification";
+import axios from "axios";
 
 export function LoginForm() {
   const navigate = useNavigate();
@@ -21,8 +22,11 @@ export function LoginForm() {
       await login(email, password);
       navigate("/dashboard");
     } catch (err) {
-      console.error("ログインエラー:", err);
-      setErrorMessage("ログインに失敗しました。メールアドレスとパスワードを確認してください。");
+      if (axios.isAxiosError(err) && err.response?.data) {
+        setErrorMessage(err.response.data)
+      } else {
+        setErrorMessage('ログインに失敗しました。再度お試しください。')
+      }
     } finally {
       setIsLoading(false);
     }

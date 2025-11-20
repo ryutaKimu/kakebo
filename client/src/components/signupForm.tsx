@@ -3,6 +3,7 @@ import { User, Mail, Lock } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { createAccount } from '@/api/kakebo'
 import { ToastError } from './toastNotification'
+import axios from 'axios'
 
 export function SignupForm() {
   const navigate = useNavigate()
@@ -14,18 +15,18 @@ export function SignupForm() {
 
 
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
       setIsLoading(true)
-      const signUp = async () => {
-        await createAccount(name, email, password)
-      }
-      signUp()
+      await createAccount(name, email, password)
       navigate('/dashboard')
     } catch (err) {
-      console.error('登録エラー:', err)
-      setErrorMessage('登録に失敗しました。再度お試しください。')
+      if (axios.isAxiosError(err) && err.response?.data) {
+        setErrorMessage(err.response.data)
+      } else {
+        setErrorMessage('登録に失敗しました。再度お試しください。')
+      }
     } finally {
       setIsLoading(false)
     }
