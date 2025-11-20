@@ -27,7 +27,6 @@ export function SignupForm() {
       setIsLoading(false)
     }
   }
-
   return (
     <>
       {errorMessage && (<ToastError message={errorMessage} onClose={() => setErrorMessage("")} />)}
