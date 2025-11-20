@@ -16,11 +16,10 @@ export const createAccount = async (
   name: string,
   email: string,
   password: string
-) => {
-  const response = await apiClient.post("/signup", {
+): Promise<void> => {
+  await apiClient.post("/signup", {
     name,
     email,
     password,
   });
-  return response.data;
 };
