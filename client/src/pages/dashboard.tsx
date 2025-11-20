@@ -2,7 +2,7 @@ import { AppHeader } from '@/components/appHeader'
 import { AppSidebar } from '@/components/appSideBar'
 import { SummaryCard } from '@/components/summaryCard'
 import { ProgressBar } from '@/components/progressBar'
-import { TrendingUp, TrendingDown, PiggyBank } from 'lucide-react'
+import { TrendingUp, TrendingDown, PiggyBank, BarChart2 } from 'lucide-react'
 import { RecentTransactions } from '@/components/recentTransactions'
 import { Link, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
@@ -12,11 +12,15 @@ export default function DashboardPage() {
     const navigate = useNavigate()
     const [totalIncome, setTotalIncome] = useState<number>(0)
     const [totalExpense, setTotalExpense] = useState<number>(0)
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null)
     const savingsGoal = { current: 245000, target: 500000 }
     const savingsPercentage = Math.round((savingsGoal.current / savingsGoal.target) * 100)
 
     useEffect(() => {
         const fetchData = async () => {
+            setIsLoading(true);
+            setError(null);
             try {
                 const data = await fetchUserFinancialData()
                 setTotalIncome(data.total_income)
@@ -25,11 +29,27 @@ export default function DashboardPage() {
                 console.error("データ取得失敗:", err)
                 if (axios.isAxiosError(err) && err.response?.status === 401) {
                     navigate("/login")
+                    return
                 }
+            } finally {
+                setIsLoading(false)
             }
         }
         fetchData()
     }, [navigate])
+
+    if (isLoading) {
+        // ローディング中のUIを返す
+        return <div>読み込み中...</div>;
+    }
+
+
+    if (error) {
+        // エラーUIを返す
+        return <div>{error}</div>;
+    }
+
+
     const recentTransactions = [
         { id: '1', description: '給料', category: '給与', amount: 150000, type: 'income' as const, date: '2025-11-15' },
         { id: '2', description: 'スーパー', category: '食費', amount: 5200, type: 'expense' as const, date: '2025-11-14' },
@@ -110,9 +130,7 @@ export default function DashboardPage() {
                             </Link>
                             <Link to="/reports" className="bg-white rounded-lg p-4 border border-border hover:shadow-md transition-shadow text-center">
                                 <div className="inline-flex p-3 bg-muted rounded-lg mb-2">
-                                    <svg className="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                                    </svg>
+                                    <BarChart2 className="w-5 h-5 text-muted-foreground" />
                                 </div>
                                 <p className="font-semibold text-foreground">レポート</p>
                             </Link>

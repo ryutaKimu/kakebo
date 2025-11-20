@@ -11,6 +11,9 @@ func CORSMiddleware(next http.Handler) http.Handler {
 		// 許可するオリジン
 		log.Println("CORS middleware hit for:", r.Method, r.URL.Path)
 		allowedOrigin := os.Getenv("CORS_ALLOWED_ORIGIN")
+		if allowedOrigin == "" {
+			allowedOrigin = "http://localhost:5173" // Fallback for development
+		}
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")

@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/ryutaKimu/kakebo/api/internal/common"
+	"github.com/ryutaKimu/kakebo/api/internal/pkg/jwt"
 	"github.com/ryutaKimu/kakebo/api/internal/request"
 	"github.com/ryutaKimu/kakebo/api/internal/service/interfaces"
 )
@@ -80,6 +81,7 @@ func (c *UserController) Login(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 		Secure:   secureFlag,
 		SameSite: http.SameSiteLaxMode,
+		MaxAge:   int(jwt.AccessTokenTTL.Seconds()),
 	})
 
 	w.Header().Set("Content-Type", "application/json")
