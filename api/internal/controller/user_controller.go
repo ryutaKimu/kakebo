@@ -5,8 +5,10 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/ryutaKimu/kakebo/api/internal/common"
+	"github.com/ryutaKimu/kakebo/api/internal/pkg/jwt"
 	"github.com/ryutaKimu/kakebo/api/internal/request"
 	"github.com/ryutaKimu/kakebo/api/internal/service/interfaces"
 )
@@ -70,13 +72,22 @@ func (c *UserController) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var response struct {
-		Token string `json:"token"`
-	}
-	response.Token = signed
+	secureFlag := os.Getenv("APP_ENV") == "production"
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "access_token",
+		Value:    signed,
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   secureFlag,
+		SameSite: http.SameSiteLaxMode,
+		MaxAge:   int(jwt.AccessTokenTTL.Seconds()),
+	})
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "login success",
+	})
 }
 
 func (c *UserController) GetProfile(w http.ResponseWriter, r *http.Request) {
