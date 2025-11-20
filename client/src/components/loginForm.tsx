@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { login } from "@/api/kakebo";
 import { ToastError } from "@/components/toastNotification";
 import { handleApiError } from "@/frontUtils/handleApiError";
+import { API_ERROR, VALIDATION } from '@/frontUtils/constants'
 
 export function LoginForm() {
   const navigate = useNavigate();
@@ -18,11 +19,22 @@ export function LoginForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+
+    if (!email.trim()) {
+      setErrorMessage(VALIDATION.EMPTY_EMAIL);
+      return;
+    }
+
+    if (!password) {
+      setErrorMessage(VALIDATION.EMPTY_PASSWORD);
+      return;
+    }
+
     try {
       await login(email, password);
       navigate("/dashboard");
     } catch (err) {
-      handleApiError(err, "ログインに失敗しました。再度お試しください。", setErrorMessage);
+      handleApiError(err, API_ERROR.LOGIN, setErrorMessage);
     } finally {
       setIsLoading(false);
     }
