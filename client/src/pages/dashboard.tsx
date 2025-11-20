@@ -26,11 +26,11 @@ export default function DashboardPage() {
                 setTotalIncome(data.total_income)
                 setTotalExpense(data.total_cost)
             } catch (err) {
-                console.error("データ取得失敗:", err)
                 if (axios.isAxiosError(err) && err.response?.status === 401) {
                     navigate("/login")
                     return
                 }
+                setError("データの取得に失敗しました。時間をおいて再度お試しください。")
             } finally {
                 setIsLoading(false)
             }
