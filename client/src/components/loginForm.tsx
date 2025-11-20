@@ -6,7 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { login } from "@/api/kakebo";
 import { ToastError } from "@/components/toastNotification";
 import { handleApiError } from "@/frontUtils/handleApiError";
-import { API_ERROR, VALIDATION } from '@/frontUtils/constants'
+import { API_ERROR, VALIDATION } from "@/frontUtils/constants";
 
 export function LoginForm() {
   const navigate = useNavigate();
