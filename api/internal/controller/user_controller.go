@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/ryutaKimu/kakebo/api/internal/common"
 	"github.com/ryutaKimu/kakebo/api/internal/request"
@@ -70,12 +71,14 @@ func (c *UserController) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	secureFlag := os.Getenv("APP_ENV") == "production"
+
 	http.SetCookie(w, &http.Cookie{
 		Name:     "access_token",
 		Value:    signed,
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   false,
+		Secure:   secureFlag,
 		SameSite: http.SameSiteLaxMode,
 	})
 

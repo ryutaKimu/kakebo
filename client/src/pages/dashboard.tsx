@@ -7,6 +7,7 @@ import { RecentTransactions } from '@/components/recentTransactions'
 import { Link, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { fetchUserFinancialData } from '@/api/kakebo'
+import axios from 'axios'
 export default function DashboardPage() {
     const navigate = useNavigate()
     const [totalIncome, setTotalIncome] = useState<number>(0)
@@ -17,16 +18,14 @@ export default function DashboardPage() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const token = localStorage.getItem("access_token")
-                if (!token) {
-                    navigate("/login")
-                    return
-                }
                 const data = await fetchUserFinancialData()
                 setTotalIncome(data.total_income)
                 setTotalExpense(data.total_cost)
             } catch (err) {
                 console.error("データ取得失敗:", err)
+                if (axios.isAxiosError(err) && err.response?.status === 401) {
+                    navigate("/login")
+                }
             }
         }
         fetchData()
