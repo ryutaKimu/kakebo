@@ -17,10 +17,16 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		}
 
 		cookie, err := r.Cookie("access_token")
-		if err != nil || cookie.Value == "" {
+		if err != nil {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
+
+		if cookie.Value == "" {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
 		token := cookie.Value
 
 		claims, err := jwt.NewJWT().VerifyToken(token)
