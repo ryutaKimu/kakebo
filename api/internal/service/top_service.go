@@ -122,6 +122,11 @@ func (s *TopServiceImpl) GetMonthlyPageSummary(
 	return totalIncome, totalCost, saving, amountDistance, nil
 }
 
-func (s *TopServiceImpl) GetLatestWant(ctx context.Context, userId int) (*model.Want, error) {
-	return s.WantRepo.FetchLatestWant(ctx, userId)
+func (s *TopServiceImpl) GetLatestWants(ctx context.Context, userId int) ([]*model.Want, error) {
+	wants, err := s.WantRepo.FetchLatestWants(ctx, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	return wants, nil
 }

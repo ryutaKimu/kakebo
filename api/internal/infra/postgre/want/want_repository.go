@@ -48,7 +48,7 @@ func (r *WantRepository) GetWantAmount(ctx context.Context, userId int) (float64
 	return amount, nil
 }
 
-func (r *WantRepository) FetchLatestWant(ctx context.Context, userId int) (*model.Want, error) {
+func (r *WantRepository) FetchLatestWants(ctx context.Context, userId int) ([]*model.Want, error) {
 	exec := dbutil.GetDBExecutor(ctx, r.Db)
 	query, args, err := r.Goqu.
 		From("wants").
@@ -63,28 +63,38 @@ func (r *WantRepository) FetchLatestWant(ctx context.Context, userId int) (*mode
 			"created_at",
 		).
 		Where(
-			goqu.C("user_id").Eq(userId),
-			goqu.C("purchased").Eq(false)).
-		Order(goqu.I("created_at").Desc()).
-		Limit(1).
+			goqu.C("user_id").Eq(userId)).
+		Order(goqu.I("id").Asc()).
+		Limit(2).
 		ToSQL()
 
 	if err != nil {
 		return nil, err
 	}
 
-	var want model.Want
-	row := exec.QueryRowContext(ctx, query, args...)
-	err = row.Scan(
-		&want.ID,
-		&want.UserId,
-		&want.Name,
-		&want.TargetAmount,
-		&want.TargetDate,
-		&want.Purchased,
-		&want.PurchasedAt,
-		&want.CreatedAt,
-	)
+	var wants []*model.Want
+	rows, err := exec.QueryContext(ctx, query, args...)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var w model.Want
+		if err := rows.Scan(
+			&w.ID,
+			&w.UserId,
+			&w.Name,
+			&w.TargetAmount,
+			&w.TargetDate,
+			&w.Purchased,
+			&w.PurchasedAt,
+			&w.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		wants = append(wants, &w)
+	}
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -93,6 +103,5 @@ func (r *WantRepository) FetchLatestWant(ctx context.Context, userId int) (*mode
 		return nil, err
 	}
 
-	return &want, nil
-
+	return wants, nil
 }
