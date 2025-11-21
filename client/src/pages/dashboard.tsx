@@ -1,8 +1,7 @@
 import { AppHeader } from '@/components/appHeader'
 import { AppSidebar } from '@/components/appSideBar'
 import { SummaryCard } from '@/components/summaryCard'
-import { ProgressBar } from '@/components/progressBar'
-import { TrendingUp, TrendingDown, Plus, Zap } from 'lucide-react'
+import { TrendingUp, TrendingDown, Plus, Zap, PiggyBank } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { fetchUserFinancialData } from '@/api/kakebo'
@@ -13,10 +12,9 @@ export default function DashboardPage() {
     const navigate = useNavigate()
     const [totalIncome, setTotalIncome] = useState<number>(0)
     const [totalExpense, setTotalExpense] = useState<number>(0)
+    const [totalSaving, setTotalSaving] = useState<number>(0)
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null)
-    const savingsGoal = { current: 245000, target: 500000 }
-    const savingsPercentage = Math.round((savingsGoal.current / savingsGoal.target) * 100)
 
     const goals = [
         {
@@ -60,9 +58,10 @@ export default function DashboardPage() {
             setIsLoading(true);
             setError(null);
             try {
-                const data = await fetchUserFinancialData()
+                const data: { total_income: number; total_cost: number; saving_amount: number } = await fetchUserFinancialData()
                 setTotalIncome(data.total_income)
                 setTotalExpense(data.total_cost)
+                setTotalSaving(data.saving_amount)
             } catch (err) {
                 if (axios.isAxiosError(err) && err.response?.status === 401) {
                     navigate("/login")
@@ -113,24 +112,12 @@ export default function DashboardPage() {
                                 amountColor="destructive"
                                 icon={<TrendingDown className="w-5 h-5" />}
                             />
-                        </div>
-
-                        {/* 貯金目標 */}
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            <div className="lg:col-span-2">
-                                <ProgressBar
-                                    title="貯金目標"
-                                    current={savingsGoal.current}
-                                    target={savingsGoal.target}
-                                    percentage={savingsPercentage}
-                                />
-                            </div>
-                            <Link to="/goals" className="bg-secondary rounded-xl p-6 border border-border shadow-sm flex items-center justify-center hover:shadow-md transition-shadow">
-                                <div className="text-center">
-                                    <p className="text-muted-foreground mb-2">目標を管理する</p>
-                                    <p className="font-semibold text-primary">設定を見る →</p>
-                                </div>
-                            </Link>
+                            <SummaryCard
+                                title="貯蓄目標"
+                                amount={`¥${totalSaving.toLocaleString()}`}
+                                amountColor="primary"
+                                icon={<PiggyBank className="w-5 h-5" />}
+                            />
                         </div>
 
 
