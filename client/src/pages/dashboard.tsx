@@ -2,13 +2,13 @@ import { AppHeader } from '@/components/appHeader'
 import { AppSidebar } from '@/components/appSideBar'
 import { SummaryCard } from '@/components/summaryCard'
 import { ProgressBar } from '@/components/progressBar'
-import { TrendingUp, TrendingDown, PiggyBank, BarChart2 } from 'lucide-react'
-import { RecentTransactions } from '@/components/recentTransactions'
+import { TrendingUp, TrendingDown, Plus, Zap } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { fetchUserFinancialData } from '@/api/kakebo'
 import axios from 'axios'
 import { API_ERROR } from '@/frontUtils/constants'
+import { SavingsGoalCard } from '@/components/savingGoalCard'
 export default function DashboardPage() {
     const navigate = useNavigate()
     const [totalIncome, setTotalIncome] = useState<number>(0)
@@ -17,6 +17,43 @@ export default function DashboardPage() {
     const [error, setError] = useState<string | null>(null)
     const savingsGoal = { current: 245000, target: 500000 }
     const savingsPercentage = Math.round((savingsGoal.current / savingsGoal.target) * 100)
+
+    const goals = [
+        {
+            id: "1",
+            name: "ノートパソコン",
+            targetAmount: 150000,
+            currentAmount: 95000,
+            targetDate: "2025-12-31",
+            image: "/m1pro_00.jpg",
+            purchased: false,
+        },
+        {
+            id: "2",
+            name: "海外旅行",
+            targetAmount: 500000,
+            currentAmount: 500000,
+            targetDate: "2026-06-30",
+            image: "/holidayTop01_mv.jpg",
+            purchased: true,
+        },
+        {
+            id: "3",
+            name: "カメラ",
+            targetAmount: 200000,
+            currentAmount: 120000,
+            targetDate: "2026-02-28",
+            image: "/camera-photography.png",
+            purchased: false,
+        },
+    ]
+
+    const displayedGoals = goals.slice(0, 2)
+
+    const handleDeleteGoal = (id: string) => {
+        console.log("[v0] 目標を削除:", id)
+        // 実装: 目標削除処理
+    }
 
     useEffect(() => {
         const fetchData = async () => {
@@ -49,16 +86,6 @@ export default function DashboardPage() {
         // エラーUIを返す
         return <div>{error}</div>;
     }
-
-
-    const recentTransactions = [
-        { id: '1', description: '給料', category: '給与', amount: 150000, type: 'income' as const, date: '2025-11-15' },
-        { id: '2', description: 'スーパー', category: '食費', amount: 5200, type: 'expense' as const, date: '2025-11-14' },
-        { id: '3', description: 'カフェ', category: '外食', amount: 1500, type: 'expense' as const, date: '2025-11-13' },
-        { id: '4', description: 'ボーナス', category: '給与', amount: 50000, type: 'income' as const, date: '2025-11-10' },
-        { id: '5', description: '家賃', category: '住まい', amount: 80000, type: 'expense' as const, date: '2025-11-01' },
-    ]
-
     return (
         <div className="flex h-screen bg-background">
             <AppSidebar />
@@ -106,36 +133,54 @@ export default function DashboardPage() {
                             </Link>
                         </div>
 
-                        {/* 最近の取引 */}
-                        <RecentTransactions transactions={recentTransactions} />
+
+                        <div>
+                            <div className="flex items-center justify-between mb-4">
+                                <h2 className="text-xl font-semibold text-foreground">欲しいもの</h2>
+                                <Link to="/wishlist" className="text-sm text-primary hover:underline">
+                                    すべて見る →
+                                </Link>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {displayedGoals.map((goal) => (
+                                    <SavingsGoalCard key={goal.id} goal={goal} onDelete={handleDeleteGoal} />
+                                ))}
+                            </div>
+                        </div>
 
                         {/* クイックアクション */}
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <Link to="/income" className="bg-white rounded-lg p-4 border border-border hover:shadow-md transition-shadow text-center">
-                                <div className="inline-flex p-3 bg-accent/10 rounded-lg mb-2">
-                                    <TrendingUp className="w-5 h-5 text-accent" />
-                                </div>
-                                <p className="font-semibold text-foreground">収入を記録</p>
-                            </Link>
-                            <Link to="/expense" className="bg-white rounded-lg p-4 border border-border hover:shadow-md transition-shadow text-center">
-                                <div className="inline-flex p-3 bg-destructive/10 rounded-lg mb-2">
-                                    <TrendingDown className="w-5 h-5 text-destructive" />
-                                </div>
-                                <p className="font-semibold text-foreground">支出を記録</p>
-                            </Link>
-                            <Link to="/goals" className="bg-white rounded-lg p-4 border border-border hover:shadow-md transition-shadow text-center">
-                                <div className="inline-flex p-3 bg-primary/10 rounded-lg mb-2">
-                                    <PiggyBank className="w-5 h-5 text-primary" />
-                                </div>
-                                <p className="font-semibold text-foreground">目標管理</p>
-                            </Link>
-                            <Link to="/reports" className="bg-white rounded-lg p-4 border border-border hover:shadow-md transition-shadow text-center">
-                                <div className="inline-flex p-3 bg-muted rounded-lg mb-2">
-                                    <BarChart2 className="w-5 h-5 text-muted-foreground" />
-                                </div>
-                                <p className="font-semibold text-foreground">レポート</p>
-                            </Link>
-                        </div>
+                        <footer className="border-t border-border bg-secondary p-6">
+                            <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-3">
+                                <Link
+                                    to="/income/new"
+                                    className="flex items-center justify-center gap-2 bg-primary text-primary-foreground rounded-lg py-3 px-4 font-semibold hover:opacity-90 transition-opacity"
+                                >
+                                    <TrendingUp className="w-5 h-5" />
+                                    <span>収入を記録</span>
+                                </Link>
+                                <Link
+                                    to="/expense/new"
+                                    className="flex items-center justify-center gap-2 bg-destructive text-destructive-foreground rounded-lg py-3 px-4 font-semibold hover:opacity-90 transition-opacity"
+                                >
+                                    <TrendingDown className="w-5 h-5" />
+                                    <span>支出を記録</span>
+                                </Link>
+                                <Link
+                                    to="/adjustment/new"
+                                    className="flex items-center justify-center gap-2 bg-accent text-accent-foreground rounded-lg py-3 px-4 font-semibold hover:opacity-90 transition-opacity"
+                                >
+                                    <Zap className="w-5 h-5" />
+                                    <span>収益調整</span>
+                                </Link>
+                                <Link
+                                    to="/wishlist/new"
+                                    className="flex items-center justify-center gap-2 bg-muted text-foreground rounded-lg py-3 px-4 font-semibold hover:opacity-90 transition-opacity"
+                                >
+                                    <Plus className="w-5 h-5" />
+                                    <span>欲しいもの登録</span>
+                                </Link>
+                            </div>
+                        </footer>
                     </div>
                 </main>
             </div>
