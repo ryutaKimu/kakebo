@@ -58,7 +58,7 @@ export default function DashboardPage() {
             setIsLoading(true);
             setError(null);
             try {
-                const data = await fetchUserFinancialData()
+                const data: { total_income: number; total_cost: number; saving_amount: number } = await fetchUserFinancialData()
                 setTotalIncome(data.total_income)
                 setTotalExpense(data.total_cost)
                 setTotalSaving(data.saving_amount)
